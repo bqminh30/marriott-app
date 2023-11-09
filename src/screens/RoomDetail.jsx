@@ -19,12 +19,11 @@ import {
   Button,
 } from "react-native";
 import { useWindowDimensions } from "react-native";
-import HTML from "react-native-render-html";
 import RenderHtml from "react-native-render-html";
 import { FontAwesome } from "@expo/vector-icons";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 // icons
-import { Feather } from "@expo/vector-icons";
+import { AntDesign } from "@expo/vector-icons";
 //redux
 import { Provider, useDispatch, useSelector } from "react-redux";
 //component
@@ -37,7 +36,7 @@ import VerticalServices from "../components/VerticalServices";
 import VerticalReviews from "../components/VerticalReviews";
 import ButtonBook from "../components/ButtonBook";
 //api
-import { getRoom , getReviews } from "../redux/actions/roomAction";
+import { getRoom, getReviews } from "../redux/actions/roomAction";
 //
 import { services } from "../config/data";
 
@@ -71,7 +70,7 @@ const RoomDetail = ({ route, navigation }) => {
   };
 
   const [collapsed, setCollapsed] = useState(true);
-  const [maxLines, setMaxLines] = useState(2);
+  const [maxLines, setMaxLines] = useState(4);
   const animationHeight = useRef(new Animated.Value(0)).current;
 
   const toggleCollapsed = () => {
@@ -81,7 +80,7 @@ const RoomDetail = ({ route, navigation }) => {
   const collapseView = () => {
     Animated.timing(animationHeight, {
       duration: 1000,
-      toValue: 80,
+      toValue: 150,
     }).start();
   };
 
@@ -89,7 +88,7 @@ const RoomDetail = ({ route, navigation }) => {
     setMaxLines(null);
     Animated.timing(animationHeight, {
       duration: 1000,
-      toValue: 1000,
+      toValue: 2000,
     }).start();
   };
 
@@ -103,15 +102,38 @@ const RoomDetail = ({ route, navigation }) => {
 
   var starPush = [];
   for (var i = 1; i <= 5; i++) {
-    starPush.push(
-      <FontAwesome
-        key={i}
-        name={i <= room?.rating ? "star" : "star-o"}
-        size={12}
-        color={i <= room?.rating ? "orange" : "black"}
-        style={{ paddingRight: 4 }}
-      />
-    );
+    if (i <= room?.rating) {
+      starPush.push(
+        <FontAwesome
+          key={i}
+          name="star"
+          size={12}
+          color="orange"
+          style={{ paddingRight: 4 }}
+        />
+      );
+    } else if (room?.rating % 1 !== 0) {
+      // Check if the rating is not a whole number (i.e., it has a decimal part)
+      starPush.push(
+        <FontAwesome
+          key={i}
+          name="star-half"
+          size={12}
+          color="orange"
+          style={{ paddingRight: 4 }}
+        />
+      );
+    } else {
+      starPush.push(
+        <FontAwesome
+          key={i}
+          name="star-o"
+          size={12}
+          color="black"
+          style={{ paddingRight: 4 }}
+        />
+      );
+    }
   }
 
   if (loading) {
@@ -165,18 +187,35 @@ const RoomDetail = ({ route, navigation }) => {
                         )}
                       />
                     </View>
-                    <Spacer height={15} />
-                    <View style={styles.flex}>
+                    <Spacer height={10} />
+                    <View>
                       <Text style={styles.name}>{room?.name} </Text>
-                      <View style={[styles.flex, styles.card]}>
-                        <Text style={styles.typeroom}>
-                          {" "}
-                          {(room?.type_room_id === 1 && "Vip") ||
-                            (room?.type_room_id === 2 && "Normal") ||
-                            (room?.type_room_id === 3 && "New")}
-                        </Text>
+                      <View style={styles.flex}>
+                        <View style={[styles.flex, styles.card]}>
+                          <Text style={styles.typeroom}>
+                            {" "}
+                            {(room?.type_room_id === 1 && "Vip") ||
+                              (room?.type_room_id === 2 && "Normal") ||
+                              (room?.type_room_id === 3 && "New")}
+                          </Text>
+                          <Text style={styles.label}></Text>
+                        </View>
+                        <View
+                          style={[
+                            styles.card,
+                            { backgroundColor: COLORS.main },
+                          ]}
+                        >
+                          <Text style={styles.label}>
+                            {(room?.label === 1 && "Excellent") ||
+                              (room?.label === 2 && "Very good") ||
+                              (room?.label === 3 && "Exceptional") ||
+                              "default"}
+                          </Text>
+                        </View>
                       </View>
                     </View>
+                    <Spacer height={5} />
                     <Text style={styles.title}>{room?.title}</Text>
                     <Spacer height={5} />
                     <View
@@ -205,6 +244,7 @@ const RoomDetail = ({ route, navigation }) => {
                         </Text>
                       </Text>
                     </View>
+
                     <View style={styles.rating}></View>
                     <Spacer height={5} />
                     <View>
@@ -219,7 +259,27 @@ const RoomDetail = ({ route, navigation }) => {
                       />
                     </View>
                     <View>
-                      <Text style={styles.key}>Description</Text>
+                      <View
+                        style={[
+                          styles.flex,
+                          { justifyContent: "space-between" },
+                        ]}
+                      >
+                        <Text style={styles.key}>Description</Text>
+
+                        <TouchableOpacity onPress={toggleCollapsed}>
+                          <View style={styles.flex}>
+                            <Text style={styles.seemore}>
+                              {collapsed ? "see more" : "hide less"}
+                            </Text>
+                            <AntDesign
+                              name={collapsed ? "down" : "up"}
+                              size={18}
+                              color={COLORS.main}
+                            />
+                          </View>
+                        </TouchableOpacity>
+                      </View>
                       <View style={{ overflow: "hidden" }}>
                         <Animated.View style={{ maxHeight: animationHeight }}>
                           <Text
@@ -232,18 +292,28 @@ const RoomDetail = ({ route, navigation }) => {
                             />
                           </Text>
                         </Animated.View>
-                        <Button
-                        style={{}}
-                          title="Toggle Collapsed"
-                          onPress={toggleCollapsed}
-                        />
+
+                        <TouchableOpacity onPress={toggleCollapsed}>
+                          <View
+                            style={[styles.flex, { justifyContent: "center" }]}
+                          >
+                            <Text style={styles.seemore}>
+                              {!collapsed && "hide less"}
+                            </Text>
+                            <AntDesign
+                              name={!collapsed && "up"}
+                              size={18}
+                              color={COLORS.main}
+                            />
+                          </View>
+                        </TouchableOpacity>
                       </View>
                     </View>
                     <View>
                       <Text style={styles.key}>Reviews</Text>
                       <FlatList
                         data={reviews}
-                        horizontal={true}
+                        horizontal={false}
                         keyExtractor={({ item, index }) => index}
                         renderItem={({ item, index }) => (
                           <VerticalReviews item={item} key={item.id} />
@@ -264,6 +334,7 @@ const RoomDetail = ({ route, navigation }) => {
             {
               marginHorizontal: SIZES.margin,
               justifyContent: "space-between",
+              marginTop: 6,
             },
           ]}
         >
@@ -308,15 +379,18 @@ const styles = StyleSheet.create({
     fontFamily: "Poppins-Thin",
   },
   key: {
-    fontSize: 15,
+    fontSize: 16,
+    color: COLORS.main,
     fontFamily: "Poppins-Medium",
   },
 
   bottom: {
     position: "absolute",
     bottom: 0,
-    height: 40,
+    height: 46,
     width: "100%",
+    backgroundColor: COLORS.white,
+    // opacity: 0.2
   },
   price: {
     fontFamily: "Poppins-MediumItalic",
@@ -338,13 +412,23 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: COLORS.black,
     padding: 4,
+    paddingLeft: 8,
     borderRadius: SIZES.margin,
+    marginRight: 4,
   },
   typeroom: {
     color: COLORS.white,
     fontSize: 12,
-    fontWeight: 600,
+    fontFamily: "Poppins-Medium",
     paddingRight: 4,
+    textTransform: "uppercase",
+  },
+  label: {
+    color: COLORS.white,
+    fontSize: 12,
+    fontFamily: "Poppins-Medium",
+    paddingRight: 4,
+    textTransform: "uppercase",
   },
 
   tabItem: {
@@ -366,5 +450,10 @@ const styles = StyleSheet.create({
   textBox: {
     flex: 1,
     position: "absolute",
+  },
+  seemore: {
+    textAlign: "center",
+    color: COLORS.main,
+    paddingRight: 2,
   },
 });
