@@ -2,10 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import {
   View,
   Text,
-  FlatList,
   TextInput,
-  Pressable,
-  TouchableOpacity,
   SafeAreaView,
   StyleSheet,
   StatusBar,
@@ -13,26 +10,30 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   ScrollView,
+  Image,
+  TouchableOpacity,
+  Modal,
 } from "react-native";
+import { CheckBox } from "react-native-elements";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import RadioGroup from "react-native-radio-buttons-group";
 import PhoneInput from "react-native-international-phone-number";
-import moment from "moment";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
+import { WebView } from "react-native-webview";
+import axios from "axios";
+import moment from "moment";
 
 import { COLORS, SIZES } from "../../config/theme";
 import Avatar from "../../components/Avatar";
 import Spacer from "../../components/Spacer";
 import Back from "../../components/Back";
 // icons
-import { AntDesign } from "@expo/vector-icons";
-import { Ionicons } from "@expo/vector-icons";
 import { MaterialIcons } from "@expo/vector-icons";
 // redux context
 import { useBooking } from "../../redux/context/BookingContext";
 import Button from "../../components/Button";
 
-const InformationScreen = () => {
+const InformationScreen = ({navigation}) => {
   const [value, setValue] = useState({
     fullname: "",
     email: "",
@@ -40,12 +41,15 @@ const InformationScreen = () => {
     code: "",
     phone: "",
   });
-  
+
   const { booking, setStep, step } = useBooking();
 
   const [selectedCountry, setSelectedCountry] = useState("");
   const [selectedId, setSelectedId] = useState();
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const [showGateway, setShowGateway] = useState(false);
+  const [showTitle, setShowTitle] = useState(false);
+  const [status, setStatus] = useState("Pending");
 
   const showDatePicker = () => {
     setDatePickerVisibility(true);
@@ -70,6 +74,29 @@ const InformationScreen = () => {
       [fieldName]: text,
     });
   };
+
+  const handlePayPal = (data) => {
+    console.log("data", data);
+    if (
+      data.url.includes("https://38a4-42-118-135-44.ngrok-free.app/process")
+    ) {
+      setStatus("Complete");
+      setShowGateway(false);
+    } else if (data.title === "cancel") {
+      setStatus("Cancelled");
+    } else return;
+  };
+
+  const handleChangeMethodPayment = (title, status) => {
+    if(title == 'paypal') {
+      setShowGateway(status)
+      setShowTitle(title)
+    }
+  }
+
+  const handleReviewSumary = () => {
+    navigation.navigate("Review Summary")
+  }
 
   const radioButtons = useMemo(
     () => [
@@ -116,120 +143,188 @@ const InformationScreen = () => {
                 <ScrollView>
                   <View style={styles.header}>
                     <Back />
-                    {/* <Avatar /> */}
+                    <Text>Book Hotel</Text>
+                    <Avatar />
                   </View>
                   {/* Your information details */}
-                  {
-                    step == 1 &&
+                  {step == 1 && (
                     <View style={{ margin: 20 }}>
-                    <Text style={styles.title}>Your Information Details</Text>
-                    <View>
-                      <Spacer height={10} />
-                      <View style={styles.inputContainer}>
-                        <TextInput
-                          placeholderTextColor={COLORS.gray_main}
-                          placeholder="Full Name"
-                          style={styles.textInput}
-                          onChangeText={(text) =>
-                            handleInputChange("fullname", text)
-                          }
-                          value={value?.fullname}
-                        />
-                      </View>
-                      <Spacer height={15} />
-                      <View style={styles.inputContainer}>
-                        <TextInput
-                          placeholderTextColor={COLORS.gray_main}
-                          placeholder="Code/ Zip"
-                          style={styles.textInput}
-                          onChangeText={(text) =>
-                            handleInputChange("code", text)
-                          }
-                          value={value?.code}
-                        />
-                      </View>
-                      <Spacer height={15} />
-                      <View style={styles.inputContainer}>
-                        <TextInput
-                          placeholderTextColor={COLORS.gray_main}
-                          autoComplete="email"
-                          placeholder="Email Address"
-                          style={styles.textInput}
-                          onChangeText={(text) =>
-                            handleInputChange("email", text)
-                          }
-                          value={value?.email}
-                        />
-                        <MaterialIcons
-                          name="email"
-                          size={20}
-                          color={COLORS.gray_main}
-                        />
-                      </View>
-                      <Spacer height={15} />
+                      <Text style={styles.title}>Your Information Details</Text>
+                      <View>
+                        <Spacer height={10} />
+                        <View style={styles.inputContainer}>
+                          <TextInput
+                            placeholderTextColor={COLORS.gray_main}
+                            placeholder="Full Name"
+                            style={styles.textInput}
+                            onChangeText={(text) =>
+                              handleInputChange("fullname", text)
+                            }
+                            value={value?.fullname}
+                          />
+                        </View>
+                        <Spacer height={15} />
+                        <View style={styles.inputContainer}>
+                          <TextInput
+                            placeholderTextColor={COLORS.gray_main}
+                            placeholder="Code/ Zip"
+                            style={styles.textInput}
+                            onChangeText={(text) =>
+                              handleInputChange("code", text)
+                            }
+                            value={value?.code}
+                          />
+                        </View>
+                        <Spacer height={15} />
+                        <View style={styles.inputContainer}>
+                          <TextInput
+                            placeholderTextColor={COLORS.gray_main}
+                            autoComplete="email"
+                            placeholder="Email Address"
+                            style={styles.textInput}
+                            onChangeText={(text) =>
+                              handleInputChange("email", text)
+                            }
+                            value={value?.email}
+                          />
+                          <MaterialIcons
+                            name="email"
+                            size={20}
+                            color={COLORS.gray_main}
+                          />
+                        </View>
+                        <Spacer height={15} />
 
-                      <PhoneInput
-                        phoneInputStyles={{
-                          container: {
-                            backgroundColor: COLORS.grayDefault,
-                            borderWidth: 0,
-                            height: 50,
-                          },
-                        }}
-                        value={value?.phone}
-                        onChangePhoneNumber={(country) =>
-                          // setInputValue(country)
-                          handleInputChange("phone", country)
-                        }
-                        selectedCountry={selectedCountry}
-                        onChangeSelectedCountry={(selectedCountry) =>
-                          setSelectedCountry(selectedCountry)
-                        }
-                      />
-
-                      <Spacer height={15} />
-                      <RadioGroup
-                        containerStyle={{
-                          color: "red",
-                        }}
-                        layout="row"
-                        radioButtons={radioButtons}
-                        onPress={setSelectedId}
-                        selectedId={selectedId}
-                      />
-                      <Spacer height={15} />
-                      <View style={styles.inputContainer}>
-                        <TextInput
-                          placeholderTextColor={COLORS.gray_main}
-                          placeholder="Birthday"
-                          style={styles.textInput}
-                          value={value?.birthday}
-                          onPressIn={showDatePicker}
+                        <PhoneInput
+                          phoneInputStyles={{
+                            container: {
+                              backgroundColor: COLORS.grayDefault,
+                              borderWidth: 0,
+                              height: 50,
+                            },
+                          }}
+                          value={value?.phone}
+                          onChangePhoneNumber={(country) =>
+                            // setInputValue(country)
+                            handleInputChange("phone", country)
+                          }
+                          selectedCountry={selectedCountry}
+                          onChangeSelectedCountry={(selectedCountry) =>
+                            setSelectedCountry(selectedCountry)
+                          }
                         />
-                        <MaterialIcons
-                          name="date-range"
-                          size={20}
-                          color={COLORS.gray_main}
+
+                        <Spacer height={15} />
+                        <RadioGroup
+                          containerStyle={{
+                            color: "red",
+                          }}
+                          layout="row"
+                          radioButtons={radioButtons}
+                          onPress={setSelectedId}
+                          selectedId={selectedId}
+                        />
+                        <Spacer height={15} />
+                        <View style={styles.inputContainer}>
+                          <TextInput
+                            placeholderTextColor={COLORS.gray_main}
+                            placeholder="Birthday"
+                            style={styles.textInput}
+                            value={value?.birthday}
+                            onPressIn={showDatePicker}
+                          />
+                          <MaterialIcons
+                            name="date-range"
+                            size={20}
+                            color={COLORS.gray_main}
+                          />
+                        </View>
+
+                        <DateTimePickerModal
+                          isVisible={isDatePickerVisible}
+                          mode="date"
+                          onConfirm={handleConfirm}
+                          onCancel={hideDatePicker}
+                          maximumDate={new Date()}
                         />
                       </View>
-
-                      <DateTimePickerModal
-                        isVisible={isDatePickerVisible}
-                        mode="date"
-                        onConfirm={handleConfirm}
-                        onCancel={hideDatePicker}
-                        maximumDate={new Date()}
-                      />
                     </View>
-                  </View>
-                  }
-                  {
-                    step == 2 && 
-                    <View>
-                      
+                  )}
+
+                  {/* Seelct the payment method */}
+                  {step == 0 && (
+                    <View style={{ margin: 20 }}>
+                      <Text style={styles.title}>
+                        Select the payment method
+                      </Text>
+                      <View>
+                        <Spacer height={10} />
+                        {/* <View style={styles.inputMethod}>
+                          <View
+                            style={{
+                              marginLeft: 20,
+                              flex: 1,
+                              flexDirection: "row",
+                              alignItems: "center",
+                            }}
+                          >
+                            <Image
+                              style={{ height: 30, width: 30 }}
+                              source={require("../../../assets/paypal.png")}
+                            />
+                            <Text style={{ fontWeight: 600, fontSize: 18 }}>
+                              PayPal
+                            </Text>
+                          </View>
+                          <CheckBox
+                          // title='Click Here'
+                          // checked={this.state.checked}
+                          />
+                        </View> */}
+                        {/* <Spacer height={5}/> */}
+                        <View style={styles.inputMethod}>
+                          <TouchableOpacity
+                            style={{
+                              flex: 1,
+                              flexDirection: "row",
+                              alignItems: "center",
+                            }}
+                            onPress={() =>
+                              handleChangeMethodPayment('paypal',!showGateway)
+                            }
+                          >
+                            <Image
+                              style={{ height: 30, width: 30 }}
+                              source={require("../../../assets/paypal.png")}
+                            />
+                            <Text style={{ fontWeight: 600, fontSize: 18 }}>
+                              Paypal
+                            </Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            style={styles.outter}
+                            onPress={() =>
+                              handleChangeMethodPayment('paypal',!showGateway)
+                            }
+                          >
+                            {showGateway === true && showTitle == 'paypal' && (
+                            <View style={styles.inner}></View>
+                            )} 
+                          </TouchableOpacity>
+                        </View>
+                        <View
+                          style={[
+                            styles.inputMethod,
+                            { justifyContent: "center", paddingVertical: 14 },
+                          ]}
+                        >
+                          <Text style={{ fontWeight: 600, fontSize: 18 }}>
+                            + Add New Card
+                          </Text>
+                        </View>
+                      </View>
                     </View>
-                  }
-                 
+                  )}
                 </ScrollView>
               </SafeAreaView>
             </View>
@@ -249,13 +344,21 @@ const InformationScreen = () => {
         >
           <Button
             label="Continue"
-            onPress=""
+            onPress={() => handleReviewSumary()}
             color={COLORS.white}
             background={COLORS.black}
             loading={false}
           />
         </View>
       </View>
+
+      {/* <Modal visible={showGateway} onRequestClose={() => setShowGateway(false)}>
+        <WebView
+          source={{ uri: "https://38a4-42-118-135-44.ngrok-free.app/create" }}
+          onNavigationStateChange={(data) => handlePayPal(data)}
+          injectedJavaScript={`document.f1.submit()`}
+        />
+      </Modal> */}
     </>
   );
 };
@@ -291,5 +394,44 @@ const styles = StyleSheet.create({
     height: 100,
     width: "100%",
     backgroundColor: COLORS.white,
+  },
+  inputMethod: {
+    marginVertical: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    backgroundColor: "white",
+    borderRadius: SIZES.radius,
+    alignItems: "center",
+    shadowColor: "#bcbcbc",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 2,
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  inner: {
+    width: 12,
+    height: 12,
+    backgroundColor: COLORS.black,
+    borderRadius: 10,
+  },
+  outter: {
+    width: 20,
+    height: 20,
+    borderWidth: 1,
+    borderColor: COLORS.gray,
+    borderRadius: 15,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  dotline: {
+    borderStyle: "dotted",
+    borderWidth: 1,
+    borderRadius: 1,
+    color: COLORS.gray,
   },
 });
