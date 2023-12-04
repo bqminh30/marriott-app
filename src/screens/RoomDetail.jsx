@@ -32,6 +32,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Calendar, LocaleConfig } from "react-native-calendars";
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import moment from "moment";
+import axios from "axios";
 // icons
 import { AntDesign } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
@@ -41,7 +42,6 @@ import { Provider, useDispatch, useSelector } from "react-redux";
 import { useBooking } from "../redux/context/BookingContext"; //
 //component
 import Back from "../components/Back";
-import Avatar from "../components/Avatar";
 import Spacer from "../components/Spacer";
 import VerticalImage from "../components/VerticalImage";
 import VerticalServices from "../components/VerticalServices";
@@ -53,6 +53,7 @@ import { getRoom, getReviews } from "../redux/actions/roomAction";
 //
 import { services } from "../config/data";
 import { COLORS, SIZES } from "../config/theme";
+import { Axios } from "axios";
 
 //============================================================
 
@@ -200,7 +201,7 @@ const RoomDetail = ({ route, navigation }) => {
     setIsModal(false);
   };
 
-  const handleSaveBooking = () => {
+  const handleSaveBooking = async () => {
     if (selectedDates.length <= 0) {
       Alert.alert("Marriott", "Select dates.", [
         {
@@ -220,45 +221,54 @@ const RoomDetail = ({ route, navigation }) => {
         const _startDate = startDate.format("DD/MM/YYYY 15:00");
         const _endDate = endDate.format("DD/MM/YYYY 12:00");
 
-        const newBookingItem = {
-          checkinDate: _startDate,
-          checkoutDate: _endDate,
-          room: room,
-          room_id: room_id,
-          price: room?.priceSale ? room?.priceSale : room?.price,
-          total: room?.priceSale
-            ? room?.priceSale * dateCount
-            : room?.price * dateCount,
-          memberCount: memberCount,
-          childrenCount: childrenCount,
-          dateCount: dateCount,
-        };
+        const res = await axios.post('https://fb5f-118-71-135-222.ngrok-free.app/api/orders/check-room-availiable',
+        {
+          startDate: _startDate,
+          endDate: _endDate,
+          roomId: room_id
+        })
 
-        // Check if there's an existing booking with the same room_id
-        if (booking && Array.isArray(booking.bookings)) {
-          const existingBooking = booking.bookings.find(
-            (bookingItem) => bookingItem.room_id === room_id
-          );
-          navigation.navigate("Information Detail");
-          if (existingBooking) {
-            // Handle scenario where booking for this room already exists
-            Alert.alert("Marriott", "A booking for this room already exists.", [
-              {
-                text: "Cancel",
-                onPress: () => console.log("Cancel Pressed"),
-                style: "cancel",
-              },
-              { text: "OK", onPress: () => console.log("OK Pressed") },
-            ]);
-          } else {
-            // If no existing booking for this room, add the new booking
-            const updatedBookings = [...booking.bookings, newBookingItem];
-            saveBooking({ ...booking, bookings: updatedBookings });
-          }
-        } else {
-          // If there's no existing booking, create a new booking object with an array containing the new booking
-          saveBooking({ bookings: [newBookingItem] });
-        }
+        console.log('data', res.data,_startDate, _endDate);
+
+        // const newBookingItem = {
+        //   checkinDate: _startDate,
+        //   checkoutDate: _endDate,
+        //   room: room,
+        //   room_id: room_id,
+        //   price: room?.priceSale ? room?.priceSale : room?.price,
+        //   total: room?.priceSale
+        //     ? room?.priceSale * dateCount
+        //     : room?.price * dateCount,
+        //   memberCount: memberCount,
+        //   childrenCount: childrenCount,
+        //   dateCount: dateCount,
+        // };
+
+        // // Check if there's an existing booking with the same room_id
+        // if (booking && Array.isArray(booking.bookings)) {
+        //   const existingBooking = booking.bookings.find(
+        //     (bookingItem) => bookingItem.room_id === room_id
+        //   );
+        //   navigation.navigate("Information Detail");
+        //   if (existingBooking) {
+        //     // Handle scenario where booking for this room already exists
+        //     Alert.alert("Marriott", "A booking for this room already exists.", [
+        //       {
+        //         text: "Cancel",
+        //         onPress: () => console.log("Cancel Pressed"),
+        //         style: "cancel",
+        //       },
+        //       { text: "OK", onPress: () => console.log("OK Pressed") },
+        //     ]);
+        //   } else {
+        //     // If no existing booking for this room, add the new booking
+        //     const updatedBookings = [...booking.bookings, newBookingItem];
+        //     saveBooking({ ...booking, bookings: updatedBookings });
+        //   }
+        // } else {
+        //   // If there's no existing booking, create a new booking object with an array containing the new booking
+        //   saveBooking({ bookings: [newBookingItem] });
+        // }
       } else {
         console.log("Invalid dates");
       }
@@ -546,7 +556,7 @@ const RoomDetail = ({ route, navigation }) => {
                     hideArrows={false}
                     markedDates={dateObject}
                     style={{
-                      height: 320,
+                      height: 380,
                       borderRadius: SIZES.radius,
                       width: SIZES.width - 30,
                     }}
@@ -646,7 +656,7 @@ const RoomDetail = ({ route, navigation }) => {
             </Text>
           </Text>
           {isModal ? (
-            <ButtonBook title={"Booking Now"} onPress={() => handlePress()} />
+            <ButtonBook title={"Booking Now"} onPress={() => handleSaveBooking()} />
           ) : (
             <ButtonBook title={"Check"} onPress={() => handleSaveBooking()} />
           )}

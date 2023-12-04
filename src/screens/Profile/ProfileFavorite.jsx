@@ -39,7 +39,7 @@ const ProfileFavorite = () => {
             renderItem={({ item, index }) => (
               <VerticalSearch item={item} key={item.id} />
             )}
-            style={{ marginBottom: 24, backgroundColor:'red', marginLeft: 24 }}
+            style={{ marginBottom: 24, marginLeft: 24 }}
           />
         </SafeAreaView>
       </KeyboardAvoidingView>
