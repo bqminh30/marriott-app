@@ -47,6 +47,7 @@ import VerticalImage from "../components/VerticalImage";
 import VerticalServices from "../components/VerticalServices";
 import VerticalReviews from "../components/VerticalReviews";
 import ButtonBook from "../components/ButtonBook";
+import Cart from "../components/Cart";
 //api
 import { getRoom, getReviews } from "../redux/actions/roomAction";
 //
@@ -64,7 +65,6 @@ const RoomDetail = ({ route, navigation }) => {
   const [showImage, setShowImage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [active, setAcive] = useState(0);
-  const [modalVisible, setModalVisible] = useState(false);
   const [dateObject, setDateObject] = useState({});
   const [selectedDates, setSelectedDates] = useState([]);
   const [memberCount, setMemberCount] = useState(1);
@@ -188,30 +188,11 @@ const RoomDetail = ({ route, navigation }) => {
     }
   };
 
-  let startDate = moment(selectedDates[0]).format("DD/MM/YYYY 15:00");
-  let endDate = moment(selectedDates[1]).format("DD/MM/YYYY 12:00");
-
-  // useEffect(() => {
-
-  //     const formattedStartDate = moment(selectedDates[0]).format("DD/MM/YYYY 15:00");
-  //     const formattedEndDate = moment(selectedDates[1]).format("DD/MM/YYYY 12:00");
-
-  //     const updatedEndDate = moment(formattedEndDate, "DD/MM/YYYY HH:mm").add(1, 'days').format("DD/MM/YYYY HH:mm");
-
-  //     setSelectedDates([
-  //       formattedStartDate,
-  //       updatedEndDate,
-  //     ]);
-
-  // }, [selectedDates]);
-
   const handleSheetChange = useCallback((index) => {
     if (index === -1 || index === 0) {
       setIsModal(true);
     }
   }, []);
-
-  console.log('isModal', isModal)
 
   const handlePress = () => {
     // Mở bottom sheet khi bạn nhấp vào một thành phần trong danh sách
@@ -342,7 +323,7 @@ const RoomDetail = ({ route, navigation }) => {
                 <View style={{ margin: SIZES.margin, paddingBottom: 80 }}>
                   <View style={styles.header}>
                     <Back />
-                    <Avatar />
+                    <Cart />
                   </View>
 
                   <Spacer height={10} />

@@ -48,7 +48,7 @@ const VerticalHome = ({ item, title }) => {
         </Text>
       </View>
       <View style={styles.content}>
-        <Text style={styles.name} textBreakStrategy="1">{item?.name}</Text>
+        <Text style={styles.name}>{item?.name}</Text>
         <View style={styles.rating}>
           <View style={styles.rate}>{starPush}</View>
           <Text style={styles.text}>{item.rating}</Text>

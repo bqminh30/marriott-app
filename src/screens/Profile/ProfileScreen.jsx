@@ -60,7 +60,7 @@ const ProfileScreen = ({navigation}) => {
               <Text style={styles.textButton}>History</Text>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={()=> navigation.navigate("Favorite Room")}>
             <View style={[styles.flex, styles.button]}>
               <MaterialIcons name="favorite" size={20} color="white" />
               <Text style={styles.textButton}>Favorite Room</Text>

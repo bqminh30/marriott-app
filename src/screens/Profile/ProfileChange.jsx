@@ -67,7 +67,6 @@ const ProfileChange = () => {
     code: user?.code
   })
 
-  console.log('user', user)
   const [loading, setLoading] = useState(false)
   const [selectedId, setSelectedId] = useState(user?.gender);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);

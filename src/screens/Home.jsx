@@ -29,14 +29,21 @@ import VerticalRecommend from "../components/VerticalRecommend";
 
 import { getRooms, getTypeRooms } from "../redux/actions/roomAction";
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 // =======================================
 const Home = () => {
   const [searchText, setSearchText] = React.useState("");
+  const [selectedType, setSelectedType] = React.useState(null);
+  const [displayedRooms, setDisplayedRooms] = React.useState(rooms);
   const [roomLimit, setRoomLimit] = React.useState([]);
   const [roomData, setRoomData] = React.useState([])
+  const [favoriteRooms, setFavoriteRooms] = React.useState([]);
   const { user } = useSelector((state) => state.authReducer);
   const { typerooms, rooms } = useSelector((state) => state.roomReducer);
   const title = 'HOME'
+
+  // console.log('rooms', rooms)
 
   const dispath = useDispatch();
 
@@ -49,6 +56,21 @@ const Home = () => {
     init();
   }, []);
 
+  
+
+// Hàm để lọc danh sách phòng dựa trên loại phòng được chọn
+const filterRoomsByType = (typeId) => {
+  setSelectedType(typeId);
+
+  if (typeId === null || typeId === undefined) {
+    setDisplayedRooms(roomData); // Hiển thị toàn bộ danh sách phòng nếu không có loại được chọn
+  } else {
+    // Lọc danh sách phòng dựa trên loại phòng được chọn
+    const filtered = roomData.filter(room => room.type_room_id === typeId);
+    setDisplayedRooms(filtered);
+  }
+};
+
   const callApiLimit = async () => {
     const res = await axios.get(
       "https://be-nodejs-project.vercel.app/api/rooms/limit/5"
@@ -59,7 +81,41 @@ const Home = () => {
   
   useEffect(() => {
     setRoomData(rooms)
+    setDisplayedRooms(rooms)
   },[rooms])
+
+  const addToFavorites = (room) => {
+    const isFavorite = favoriteRooms.some(favRoom => favRoom.id === room.id);
+
+  let updatedFavorites;
+  if (isFavorite) {
+    updatedFavorites = favoriteRooms.filter(favRoom => favRoom.id !== room.id);
+  } else {
+    updatedFavorites = [...favoriteRooms, room];
+  }
+
+
+  setFavoriteRooms(updatedFavorites);
+
+  AsyncStorage.setItem('favoriteRooms', JSON.stringify(updatedFavorites))
+    .then(() => {
+      console.log('Favorite rooms saved successfully');
+    })
+    .catch((error) => {
+      console.error('Error saving favorite rooms: ', error);
+    });
+  };
+  
+  useEffect(() => {
+    // Lấy danh sách phòng mới từ favoriteRooms và cập nhật roomData
+    const updatedRoomData = roomData.map(room => {
+      const isFavorite = favoriteRooms.some(favRoom => favRoom.id === room.id);
+      return { ...room, isFavorite };
+    });
+  
+    setRoomData(updatedRoomData);
+    setDisplayedRooms(updatedRoomData)
+  }, [favoriteRooms]);
 
   useEffect(() => {
     callApiLimit();
@@ -128,25 +184,30 @@ const Home = () => {
             />
             <Spacer height={20} />
             <FlatList
-              data={typerooms}
-              onStartShouldSetResponder={() => true}
-              scrollEventThrottle={10}
-              horizontal={true}
-              keyExtractor={({ item, index }) => index}
-              renderItem={({ item, index }) => (
-                <VerticalType item={item} key={item.id} />
-              )}
-              style={{ marginLeft: SIZES.padding }}
+            data={typerooms}
+            onStartShouldSetResponder={() => true}
+            scrollEventThrottle={10}
+            horizontal={true}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={({ item }) => (
+              <VerticalType
+                item={item}
+                key={item.id}
+                filterRoomsByType={filterRoomsByType} // Gọi hàm filterRoomsByType khi loại phòng được chọn
+              />
+            )}
+            style={{ marginLeft: SIZES.padding }}
             />
             <Spacer height={20} />
             <View onStartShouldSetResponder={() => true}>
               <FlatList
-                data={roomData}
-                scrollEventThrottle={10}
+                onStartShouldSetResponder={() => true}
+                data={displayedRooms} // Truyền danh sách phòng yêu thích vào data
+                scrollEventThrottle={20}
                 horizontal={true}
-                keyExtractor={({ item, index }) => index}
-                renderItem={({ item, index }) => (
-                  <VerticalRecommend item={item} key={item.id} title={title}/>
+                keyExtractor={(item, index) => item.id.toString()} // Sử dụng item.id như key
+                renderItem={({ item }) => ( // Render từng phòng trong danh sách
+                  <VerticalRecommend item={item} key={item.id} title={title} addToFavorites={addToFavorites}/>
                 )}
                 style={{ marginLeft: SIZES.padding }}
               />

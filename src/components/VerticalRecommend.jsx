@@ -12,12 +12,19 @@ import { FontAwesome } from "@expo/vector-icons";
 import { COLORS, SIZES } from "../config/theme";
 import Spacer from "./Spacer";
 
-const VerticalRecommend = ({ item, title }) => {
+
+const VerticalRecommend = ({ item, title,addToFavorites }) => {
   const navigation = useNavigation();
 
-  const handleFavorite = (item) => {
-    console.log('item', item)
-  }
+  const [isFavorite, setIsFavorite] = React.useState(item.isFavorite);
+
+  const handleFavorite = () => {
+    setIsFavorite(!isFavorite); // Đảo ngược trạng thái yêu thích khi người dùng nhấn vào nút
+
+    // Gọi hàm addToFavorites từ props để thêm hoặc bỏ yêu thích
+    addToFavorites(item);
+  };
+
   return (
     <TouchableOpacity key={item?.id} activeOpacity={1} onPress={() => {
       title === "HOME"
@@ -45,8 +52,12 @@ const VerticalRecommend = ({ item, title }) => {
           <FontAwesome name="star" size={12} color="orange" />
         </View>
 
-        <TouchableOpacity style={styles.heart} onPress={()=>handleFavorite(item)}>
-          <FontAwesome name="heart-o" size={12} color="black" />
+        <TouchableOpacity style={styles.heart} onPress={() => handleFavorite(item)}>
+          <FontAwesome
+            name={item.isFavorite ? 'heart' : 'heart-o'} // Sử dụng icon 'heart' hoặc 'heart-o' dựa trên trạng thái yêu thích
+            size={16}
+            color={item.isFavorite ? 'red' : COLORS.black} // Thay đổi màu sắc tùy thuộc vào trạng thái yêu thích
+          />
         </TouchableOpacity>
       </View>
       <Spacer height={120} />
@@ -98,8 +109,8 @@ const styles = StyleSheet.create({
     fontWeight: 600,
   },
   heart: {
-    height: 20,
-    width: 20,
+    height: 26,
+    width: 26,
     borderRadius: 50,
     backgroundColor: COLORS.white,
     justifyContent: "center",

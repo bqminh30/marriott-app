@@ -10,7 +10,7 @@ import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { ProfileChange, ProfilePassword, ProfileScreen } from "../screens/Profile";
+import { ProfileChange, ProfilePassword, ProfileScreen, ProfileFavorite } from "../screens/Profile";
 import { OrderScreen, InformationScreen, SelectPaymentScreen, ReviewSummaryScreen } from "../screens/Order";
 
 import { NavigationContainer, useNavigation } from "@react-navigation/native";
@@ -193,6 +193,11 @@ const TabNavigation = () => {
        <Stack.Screen
         name="Select Payment"
         component={SelectPaymentScreen}
+        options={{ unmountOnBlur: true, headerShown: false }}
+      />
+      <Stack.Screen
+        name="Favorite Room"
+        component={ProfileFavorite}
         options={{ unmountOnBlur: true, headerShown: false }}
       />
        <Stack.Screen

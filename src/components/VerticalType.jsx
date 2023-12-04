@@ -2,9 +2,9 @@ import React from 'react'
 import {View, Text, TouchableOpacity, StyleSheet,} from 'react-native'
 import { COLORS, SIZES } from '../config/theme'
 
-const VerticalType = ({item}) => {
+const VerticalType = ({item,filterRoomsByType}) => {
   return (
-    <TouchableOpacity key={item?.id} activeOpacity={1} style={styles.component}>
+    <TouchableOpacity key={item?.id}  onPress={()=>filterRoomsByType(item.id)} style={styles.component}>
         <Text style={[styles.type]}>{item.name}</Text>
     </TouchableOpacity>
   )

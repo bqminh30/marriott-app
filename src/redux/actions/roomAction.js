@@ -2,6 +2,8 @@ import * as type from "../types";
 import axios from "axios";
 import { BASE_URL } from "../../config/config_url";
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 export const getRooms = () => {
   return async (dispatch) => {
     try {
@@ -20,10 +22,21 @@ export const getRooms = () => {
 
       if (response.status == 200) {
         const data = response.data;
+
+        // Lấy danh sách phòng yêu thích từ AsyncStorage
+        const favoriteRooms = await AsyncStorage.getItem('favoriteRooms');
+        const parsedFavorites = favoriteRooms ? JSON.parse(favoriteRooms) : [];
+
+        // So sánh từng phòng để xác định trạng thái yêu thích
+        const roomsWithFavorites = data.map(room => {
+          const isFavorite = parsedFavorites.some(favRoom => favRoom.id === room.id);
+          return { ...room, isFavorite };
+        });
+
         dispatch({
           type: type.SET_ROOMS_SUCCESS,
           payload: {
-            rooms: data,
+            rooms: roomsWithFavorites,
           },
         });
       }
