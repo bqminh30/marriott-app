@@ -8,7 +8,6 @@ import {
   Image,
   TouchableOpacity,
 } from "react-native";
-import { useSelector } from "react-redux";
 import { MaterialIcons, Ionicons, FontAwesome } from "@expo/vector-icons";
 //components
 import Back from "../../components/Back";
@@ -17,22 +16,26 @@ import Spacer from "../../components/Spacer";
 // config
 import { COLORS, SIZES } from "../../config/theme";
 
-const ProfileScreen = ({navigation}) => {
-  const { user } = useSelector((state) => state.authReducer);
+import { Provider, useDispatch, useSelector } from "react-redux";
+import { logoutAction } from "../../redux/actions/authAction";
 
-  console.log('user', user)
+const ProfileScreen = ({ navigation }) => {
+  const { user } = useSelector((state) => state.authReducer);
+  const dispatch = useDispatch();
+
+  console.log('user',user)
 
   return (
     <>
       <StatusBar barStyle="dark-content" />
       <SafeAreaView style={{ backgroundColor: COLORS.white, flex: 1 }}>
         {/* <View style={{ margin: SIZES.margin }}> */}
-          <View style={styles.header}>
-            <Back />
-            <Avatar />
-          </View>
+        <View style={styles.header}>
+          <Back />
+          <Avatar />
+        </View>
         {/* </View> */}
-        
+
         <View style={styles.profile}>
           <View style={styles.container}>
             <View style={[styles.flex, { justifyContent: "space-between" }]}>
@@ -54,13 +57,17 @@ const ProfileScreen = ({navigation}) => {
         </View>
         <Spacer height={15} />
         <View style={styles.store}>
-          <TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("ProfileBooking")}
+          >
             <View style={[styles.flex, styles.button]}>
               <FontAwesome name="history" size={20} color="white" />
               <Text style={styles.textButton}>History</Text>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity onPress={()=> navigation.navigate("Favorite Room")}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("Favorite Room")}
+          >
             <View style={[styles.flex, styles.button]}>
               <MaterialIcons name="favorite" size={20} color="white" />
               <Text style={styles.textButton}>Favorite Room</Text>
@@ -70,7 +77,6 @@ const ProfileScreen = ({navigation}) => {
         <Spacer height={15} />
         <View style={styles.action}>
           <View style={styles.content}>
-           
             <TouchableOpacity
               onPress={() => navigation.navigate("Thông tin Profile")}
             >
@@ -105,7 +111,7 @@ const ProfileScreen = ({navigation}) => {
                 />
               </View>
             </TouchableOpacity>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => dispatch(logoutAction())}>
               <View style={styles.actionPush}>
                 {/* <Image
                 source={require("../../../assets/Icon-profile/Icon_logout.png")}
@@ -198,7 +204,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "flex-start",
     marginHorizontal: SIZES.padding,
-    gap: 10
+    gap: 10,
   },
   button: {
     padding: 12,

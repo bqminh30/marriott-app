@@ -1,20 +1,30 @@
 import React from "react";
-import { TouchableOpacity, View, Text, StyleSheet } from "react-native";
+import {
+  TouchableOpacity,
+  View,
+  Text,
+  StyleSheet,
+  ActivityIndicator,
+} from "react-native";
 import { COLORS, SIZES } from "../config/theme";
 
-const ButtonBook = ({title, onPress}) => {
+const ButtonBook = ({ title, onPress, isLoading }) => {
   return (
-    <TouchableOpacity style={styles.button} onPress={()=> onPress()}>
-      <Text
-        style={{
-          color: COLORS.white,
-          fontSize: 12,
-          fontFamily: "Poppins-Medium",
-          padding: 8,
-        }}
-      >
-        {title}
-      </Text>
+    <TouchableOpacity style={styles.button} onPress={() => onPress()}>
+      {isLoading == true ? (
+        <ActivityIndicator size="small" color="#ffff" style={{ padding: 6 }} />
+      ) : (
+        <Text
+          style={{
+            color: COLORS.white,
+            fontSize: 12,
+            fontFamily: "Poppins-Medium",
+            padding: 8,
+          }}
+        >
+          {title}
+        </Text>
+      )}
     </TouchableOpacity>
   );
 };

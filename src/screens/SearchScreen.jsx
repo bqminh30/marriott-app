@@ -196,6 +196,12 @@ const SearchScreen = () => {
     }
   }, []);
 
+  const handleCloseSheet = () => {
+    bottomSheetModalRef.current.close();
+    bottomSheetModalRef3.current.close();
+    bottomSheetModalRef2.current.close();
+  }
+
   const handlePress = () => {
     // Mở bottom sheet khi bạn nhấp vào một thành phần trong danh sách
     setOpacity(0.6);
@@ -229,6 +235,7 @@ const SearchScreen = () => {
   const handleSearchRooms = async () => {
     setLoadinDataSearch(true);
     setDataSearch([]);
+    handleCloseSheet()
     await axios
       .post("https://be-nodejs-project.vercel.app/api/rooms/search", {
         startDate: startDate,
@@ -747,58 +754,7 @@ const SearchScreen = () => {
                   </>
                 );
               })}
-              {/* <View
-                style={{
-                  width: "100%",
-                  borderBottomWidth: 1,
-                  borderColor: COLORS.grayDefault,
-                }}
-              >
-                <Text
-                  style={{
-                    fontWeight: 600,
-                    fontSize: 16,
-                    fontFamily: "Poppins-Medium",
-                    paddingVertical: 16,
-                  }}
-                >
-                  Lowest Price
-                </Text>
-              </View>
-              <View
-                style={{
-                  width: "100%",
-                  borderBottomWidth: 1,
-                  borderColor: COLORS.grayDefault,
-                }}
-              >
-                <Text
-                  style={{
-                    fontWeight: 600,
-                    fontSize: 16,
-                    fontFamily: "Poppins-Medium",
-                    paddingVertical: 16,
-                  }}
-                >
-                  Highest Price
-                </Text>
-              </View>
-              <View
-                style={{
-                  width: "100%",
-                }}
-              >
-                <Text
-                  style={{
-                    fontWeight: 600,
-                    fontSize: 16,
-                    fontFamily: "Poppins-Medium",
-                    paddingVertical: 16,
-                  }}
-                >
-                  Moste Rated
-                </Text>
-              </View> */}
+            
             </View>
           </BottomSheet>
         </KeyboardAvoidingView>

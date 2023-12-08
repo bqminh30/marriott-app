@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -11,7 +11,8 @@ import {
   StatusBar,
   TouchableWithoutFeedback,
   Keyboard,
-  KeyboardAvoidingView
+  KeyboardAvoidingView,
+  ScrollView,
 } from "react-native";
 import axios from "axios";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -29,193 +30,169 @@ import VerticalRecommend from "../components/VerticalRecommend";
 
 import { getRooms, getTypeRooms } from "../redux/actions/roomAction";
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
+const type_room = [
+  {
+    id: 5,
+    name: "ALL",
+  },
+  {
+    id: 1,
+    name: "VIP",
+  },
+  {
+    id: 2,
+    name: "NORMAL",
+  },
+  {
+    id: 3,
+    name: "NEW",
+  },
+];
 // =======================================
 const Home = () => {
-  const [searchText, setSearchText] = React.useState("");
+  const [loading, setLoading] = React.useState(false);
   const [selectedType, setSelectedType] = React.useState(null);
-  const [displayedRooms, setDisplayedRooms] = React.useState(rooms);
-  const [roomLimit, setRoomLimit] = React.useState([]);
-  const [roomData, setRoomData] = React.useState([])
+  const [displayedRooms, setDisplayedRooms] = React.useState();
+  const [roomData, setRoomData] = React.useState([]);
   const [favoriteRooms, setFavoriteRooms] = React.useState([]);
   const { user } = useSelector((state) => state.authReducer);
   const { typerooms, rooms } = useSelector((state) => state.roomReducer);
-  const title = 'HOME'
-
+  const title = "HOME";
   // console.log('rooms', rooms)
 
   const dispath = useDispatch();
 
   const init = async () => {
-    await dispath(getRooms())
-    await dispath(getTypeRooms())
+    setLoading(true);
+    await dispath(getRooms());
   };
-
   useEffect(() => {
     init();
+    setLoading(false);
   }, []);
 
-  
+  // Hàm để lọc danh sách phòng dựa trên loại phòng được chọn
+  const filterRoomsByType = (typeId) => {
+    setSelectedType(typeId);
 
-// Hàm để lọc danh sách phòng dựa trên loại phòng được chọn
-const filterRoomsByType = (typeId) => {
-  setSelectedType(typeId);
-
-  if (typeId === null || typeId === undefined) {
-    setDisplayedRooms(roomData); // Hiển thị toàn bộ danh sách phòng nếu không có loại được chọn
-  } else {
-    // Lọc danh sách phòng dựa trên loại phòng được chọn
-    const filtered = roomData.filter(room => room.type_room_id === typeId);
-    setDisplayedRooms(filtered);
-  }
-};
-
-  const callApiLimit = async () => {
-    const res = await axios.get(
-      "https://be-nodejs-project.vercel.app/api/rooms/limit/5"
-    );
-    setRoomLimit(res.data);
-    
+    if (typeId === null || typeId === undefined || typeId === 5) {
+      setDisplayedRooms(roomData); // Hiển thị toàn bộ danh sách phòng nếu không có loại được chọn
+    } else {
+      // Lọc danh sách phòng dựa trên loại phòng được chọn
+      const filtered = roomData.filter((room) => room.type_room_id === typeId);
+      setDisplayedRooms(filtered);
+    }
   };
-  
+
   useEffect(() => {
-    setRoomData(rooms)
-    setDisplayedRooms(rooms)
-  },[rooms])
+    setRoomData(rooms);
+    setDisplayedRooms(rooms);
+  }, [rooms]);
 
   const addToFavorites = (room) => {
-    const isFavorite = favoriteRooms.some(favRoom => favRoom.id === room.id);
+    const isFavorite = favoriteRooms.some((favRoom) => favRoom.id === room.id);
 
-  let updatedFavorites;
-  if (isFavorite) {
-    updatedFavorites = favoriteRooms.filter(favRoom => favRoom.id !== room.id);
-  } else {
-    updatedFavorites = [...favoriteRooms, room];
-  }
+    let updatedFavorites;
+    if (isFavorite) {
+      updatedFavorites = favoriteRooms.filter(
+        (favRoom) => favRoom.id !== room.id
+      );
+    } else {
+      updatedFavorites = [...favoriteRooms, room];
+    }
 
+    setFavoriteRooms(updatedFavorites);
 
-  setFavoriteRooms(updatedFavorites);
-
-  AsyncStorage.setItem('favoriteRooms', JSON.stringify(updatedFavorites))
-    .then(() => {
-      console.log('Favorite rooms saved successfully');
-    })
-    .catch((error) => {
-      console.error('Error saving favorite rooms: ', error);
-    });
+    AsyncStorage.setItem("favoriteRooms", JSON.stringify(updatedFavorites))
+      .then(() => {
+        console.log("Favorite rooms saved successfully");
+      })
+      .catch((error) => {
+        console.error("Error saving favorite rooms: ", error);
+      });
   };
-  
+
   useEffect(() => {
     // Lấy danh sách phòng mới từ favoriteRooms và cập nhật roomData
-    const updatedRoomData = roomData.map(room => {
-      const isFavorite = favoriteRooms.some(favRoom => favRoom.id === room.id);
+    const updatedRoomData = roomData.map((room) => {
+      const isFavorite = favoriteRooms.some(
+        (favRoom) => favRoom.id === room.id
+      );
       return { ...room, isFavorite };
     });
-  
+
     setRoomData(updatedRoomData);
-    setDisplayedRooms(updatedRoomData)
+    setDisplayedRooms(updatedRoomData);
   }, [favoriteRooms]);
 
-  useEffect(() => {
-    callApiLimit();
-  }, []);
+  console.log("rooms", displayedRooms?.length);
 
   return (
     <>
-     <GestureHandlerRootView
+      <GestureHandlerRootView
         style={{ flex: 1, backgroundColor: COLORS.white }}
       >
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
-          style={styles.container}
+          style={{ flex: 1 }}
         >
-      <StatusBar backgroundColor="#009387" barStyle="dark-content" />
+          <StatusBar backgroundColor="#009387" barStyle="dark-content" />
 
-      <SafeAreaView >
-        <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-          <View onStartShouldSetResponder={() => true}>
-            <View style={styles.header}>
-              <Menu />
-              <Avatar />
-            </View>
-            <Spacer height={20} />
-            <View style={styles.content}>
-              <Text style={styles.name}>Hello, {user.fullname}</Text>
-              <Text style={styles.title}>Best Hotel to Stay In</Text>
-            </View>
-            <Spacer height={10} />
-            <View style={styles.sectionStyle}>
-              <Ionicons
-                name="md-search-sharp"
-                size={24}
-                color={COLORS.black}
-                style={styles.imageStyle}
-              />
-              <TextInput
-                style={{ flex: 1 }}
-                placeholder="Searchs for hotels"
-                underlineColorAndroid="transparent"
-                value={searchText}
-                onChangeText={(text) => setSearchText(text)}
-              />
-              {searchText !== "" && (
-                <TouchableOpacity onPress={() => setSearchText("")}>
-                  <Ionicons
-                    name="close"
-                    size={24}
-                    color={COLORS.greenMain}
-                    style={styles.imageStyle}
+          <SafeAreaView style={{ flex: 1 }}>
+            <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+              <View onStartShouldSetResponder={() => true}>
+                <View style={styles.header}>
+                  <Menu />
+                  <Avatar />
+                </View>
+                <Spacer height={20} />
+                <View style={styles.content}>
+                  <Text style={styles.name}>Hello, {user.fullname}</Text>
+                  <Text style={styles.title}>Best Hotel to Stay In</Text>
+                </View>
+                <Spacer height={10} />
+                <FlatList
+                  data={type_room}
+                  onStartShouldSetResponder={() => true}
+                  scrollEventThrottle={10}
+                  horizontal={true}
+                  keyExtractor={(item, index) => index.toString()}
+                  renderItem={({ item }) => (
+                    <VerticalType
+                      item={item}
+                      selectedType={selectedType}
+                      key={item.id}
+                      filterRoomsByType={filterRoomsByType} // Gọi hàm filterRoomsByType khi loại phòng được chọn
+                    />
+                  )}
+                  style={{ marginLeft: SIZES.padding }}
+                />
+                <Spacer height={20} />
+                {loading == false && displayedRooms?.length > 0 && (
+                  <FlatList
+                    contentContainerStyle={{ alignSelf: "flex-start" }}
+                    numColumns={2}
+                    data={displayedRooms}
+                    scrollEventThrottle={20}
+                    keyExtractor={(item, index) => item.id.toString()}
+                    renderItem={({ item }) => (
+                      <VerticalRecommend
+                        item={item}
+                        key={item.id}
+                        title={title}
+                        addToFavorites={addToFavorites}
+                      />
+                    )}
+                    style={{ marginLeft: SIZES.padding, marginBottom: 170 }} // Sử dụng flex: 1 thay cho height cố định
+                    horizontal={false} // Ngăn cuộn ngang
                   />
-                </TouchableOpacity>
-              )}
-            </View>
-            <Spacer height={20} />
-            <FlatList
-              onStartShouldSetResponder={() => true}
-              data={roomLimit}
-              scrollEventThrottle={20}
-              horizontal={true}
-              keyExtractor={({ item, index }) => index}
-              renderItem={({ item, index }) => (
-                <VerticalHome item={item} key={item.id} title={title}/>
-              )}
-              style={{ marginLeft: SIZES.padding }}
-            />
-            <Spacer height={20} />
-            <FlatList
-            data={typerooms}
-            onStartShouldSetResponder={() => true}
-            scrollEventThrottle={10}
-            horizontal={true}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item }) => (
-              <VerticalType
-                item={item}
-                key={item.id}
-                filterRoomsByType={filterRoomsByType} // Gọi hàm filterRoomsByType khi loại phòng được chọn
-              />
-            )}
-            style={{ marginLeft: SIZES.padding }}
-            />
-            <Spacer height={20} />
-            <View onStartShouldSetResponder={() => true}>
-              <FlatList
-                onStartShouldSetResponder={() => true}
-                data={displayedRooms} // Truyền danh sách phòng yêu thích vào data
-                scrollEventThrottle={20}
-                horizontal={true}
-                keyExtractor={(item, index) => item.id.toString()} // Sử dụng item.id như key
-                renderItem={({ item }) => ( // Render từng phòng trong danh sách
-                  <VerticalRecommend item={item} key={item.id} title={title} addToFavorites={addToFavorites}/>
                 )}
-                style={{ marginLeft: SIZES.padding }}
-              />
-            </View>
-          </View>
-        </TouchableWithoutFeedback>
-      </SafeAreaView>
-      </KeyboardAvoidingView>
+              </View>
+            </TouchableWithoutFeedback>
+          </SafeAreaView>
+        </KeyboardAvoidingView>
       </GestureHandlerRootView>
     </>
   );

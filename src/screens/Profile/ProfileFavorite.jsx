@@ -1,11 +1,21 @@
-import React, {useEffect, useState} from "react";
-import { Text, View, KeyboardAvoidingView, StyleSheet, StatusBar,FlatList,SafeAreaView } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  Text,
+  View,
+  KeyboardAvoidingView,
+  StyleSheet,
+  StatusBar,
+  FlatList,
+  SafeAreaView,
+} from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { COLORS, SIZES } from "../../config/theme";
 
 import VerticalSearch from "../../components/VerticalSearch";
+import Back from "../../components/Back";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Spacer from "../../components/Spacer";
 
 const ProfileFavorite = () => {
   const [favoriteRooms, setFavoriteRooms] = React.useState([]);
@@ -31,7 +41,12 @@ const ProfileFavorite = () => {
         style={styles.container}
       >
         <StatusBar backgroundColor="#009387" barStyle="dark-content" />
-        <SafeAreaView>
+        <SafeAreaView style={{marginBottom:20}}>
+          <View style={styles.header}>
+            <Back />
+            <View></View>
+          </View>
+          <Spacer height={10}/>
           <FlatList
             data={favoriteRooms}
             scrollEventThrottle={10}
@@ -41,6 +56,7 @@ const ProfileFavorite = () => {
             )}
             style={{ marginBottom: 24, marginLeft: 24 }}
           />
+          <Spacer height={20}/>
         </SafeAreaView>
       </KeyboardAvoidingView>
     </GestureHandlerRootView>
@@ -49,5 +65,12 @@ const ProfileFavorite = () => {
 
 export default ProfileFavorite;
 
-
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  header: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginHorizontal: 20,
+  },
+});

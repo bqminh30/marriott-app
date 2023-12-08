@@ -8,7 +8,7 @@ import Avatar from "./Avatar";
 const VerticalReviews = ({ item }) => {
   var starPush = [];
 for (var i = 1; i <= 5; i++) {
-  if (i <= item?.rating) {
+  if (i <= Math.floor(item?.rating)) {
     starPush.push(
       <FontAwesome
         key={i}
@@ -18,8 +18,7 @@ for (var i = 1; i <= 5; i++) {
         style={{ paddingRight: 4 }}
       />
     );
-  } else if (item?.rating % 1 !== 0) {
-    // Check if the rating is not a whole number (i.e., it has a decimal part)
+  } else if (i - 1 < item?.rating && item?.rating < i) {
     starPush.push(
       <FontAwesome
         key={i}
@@ -42,17 +41,18 @@ for (var i = 1; i <= 5; i++) {
   }
 }
 
-  const dateConvert = moment(item.createdAt).fromNow() 
+
+  const dateConvert = moment(item.createdAt).fromNow();
   return (
     <View key={item?.email} style={styles.container}>
-      <View style={[styles.flex, {justifyContent: 'space-between'}]}>
+      <View style={[styles.flex, { justifyContent: "space-between" }]}>
         {/* Avatar  */}
         <View style={styles.flex}>
-        <Avatar />
-        <View style={{marginLeft: 10}}>
-          <Text style={styles.name}>{item.fullname}</Text>
-          <Text style={styles.date}>{dateConvert}</Text>
-        </View>
+          <Avatar />
+          <View style={{ marginLeft: 10 }}>
+            <Text style={styles.name}>{item.fullname}</Text>
+            <Text style={styles.date}>{dateConvert}</Text>
+          </View>
         </View>
 
         <View style={styles.flex}>
@@ -72,14 +72,14 @@ const styles = StyleSheet.create({
   container: {
     borderBottomWidth: 0.2,
     borderBottomColor: COLORS.gray,
-    marginVertical: 10
+    marginVertical: 10,
   },
   flex: {
     flexDirection: "row",
     alignItems: "center",
   },
   content: {
-    paddingVertical: 10
+    paddingVertical: 10,
   },
   name: {
     fontFamily: "Poppins-MediumItalic",
@@ -91,5 +91,5 @@ const styles = StyleSheet.create({
     fontFamily: "Poppins-MediumItalic",
     fontSize: 12,
     color: COLORS.gray_main,
-  }
+  },
 });

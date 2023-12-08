@@ -10,7 +10,7 @@ import "./ignoreWarning";
 import AppNav from "./src/navigation/AppNav";
 import { useFonts } from "expo-font";
 import { YellowBox } from "react-native";
-require("moment/locale/vi");
+require("moment/locale/en-au");
 
 export default function App() {
   const [fontsLoaded] = useFonts({

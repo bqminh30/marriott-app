@@ -1,0 +1,51 @@
+{
+  "bookings": [
+    {
+      "checkinDate": "19/12/2023 15:00",
+      "checkoutDate": "22/12/2023 12:00",
+      "childrenCount": 0,
+      "dateCount": 3,
+      "memberCount": 1,
+      "price": 102,
+      "room": {},
+      "room_id": 40,
+      "total": 306
+    },
+    {
+        "checkinDate": "19/12/2023 15:00",
+        "checkoutDate": "22/12/2023 12:00",
+        "childrenCount": 0,
+        "dateCount": 3,
+        "memberCount": 1,
+        "price": 102,
+        "room": {},
+        "room_id": 41,
+        "total": 306
+      }
+  ],
+  "method": "paypal",
+  "order": {
+    "createdDate": "2023-10-01",
+    "count": 2,
+    "status": "Pending",
+    "total": 612,
+    "note": "Sample order",
+    "customer_id": 2,
+    "profile": {
+    "birthday": "30/10/2001", 
+    "code": "0000", 
+    "email": "bqminh30@gmail.com",
+     "fullname": "Bùi Quang Minh", 
+    "gender": "1",
+     "phone": "0362592858"
+    }
+  },
+  "profile": {
+    "birthday": "30/10/2001",
+    "code": "0000",
+    "email": "bqminh30@gmail.com",
+    "fullname": "Bùi Quang Minh",
+    "gender": "1",
+    "phone": ""
+  }
+}

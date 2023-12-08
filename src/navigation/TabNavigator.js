@@ -1,23 +1,28 @@
 import { COLORS, SIZES } from "../config/theme";
-import {
-  Home,
-  RoomList,
-  SearchScreen,
-  RoomDetail,
-} from "../screens";
+import { Home, RoomList, SearchScreen, RoomDetail } from "../screens";
 
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { ProfileChange, ProfilePassword, ProfileScreen, ProfileFavorite } from "../screens/Profile";
-import { OrderScreen, InformationScreen, SelectPaymentScreen, ReviewSummaryScreen } from "../screens/Order";
+import {
+  ProfileChange,
+  ProfilePassword,
+  ProfileScreen,
+  ProfileFavorite,
+  ProfileBooking,
+  ProfileBookingDetail,
+} from "../screens/Profile";
+import {
+  OrderScreen,
+  InformationScreen,
+  ReviewSummaryScreen,
+} from "../screens/Order";
 
 import { NavigationContainer, useNavigation } from "@react-navigation/native";
 
 //Redux
 import { useBooking } from "../redux/context/BookingContext"; //
-
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -190,17 +195,17 @@ const TabNavigation = () => {
         component={InformationScreen}
         options={{ unmountOnBlur: true, headerShown: false }}
       />
-       <Stack.Screen
+      {/* <Stack.Screen
         name="Select Payment"
-        component={SelectPaymentScreen}
+        component}
         options={{ unmountOnBlur: true, headerShown: false }}
-      />
+      /> */}
       <Stack.Screen
         name="Favorite Room"
         component={ProfileFavorite}
         options={{ unmountOnBlur: true, headerShown: false }}
       />
-       <Stack.Screen
+      <Stack.Screen
         name="Review Summary"
         component={ReviewSummaryScreen}
         options={{ unmountOnBlur: true, headerShown: false }}
@@ -213,6 +218,18 @@ const TabNavigation = () => {
       <Stack.Screen
         name="Đổi mật khẩu"
         component={ProfilePassword}
+        options={{ unmountOnBlur: true, headerShown: false }}
+      />
+
+      <Stack.Screen
+        name="ProfileBooking"
+        component={ProfileBooking}
+        options={{ unmountOnBlur: true, headerShown: false }}
+      />
+
+      <Stack.Screen
+        name="ProfileBookingDetail"
+        component={ProfileBookingDetail}
         options={{ unmountOnBlur: true, headerShown: false }}
       />
     </Stack.Navigator>

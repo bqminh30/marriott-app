@@ -79,11 +79,11 @@ const SignInScreen = ({ navigation }) => {
       </View>
       <Animatable.View animation="fadeInUpBig" style={styles.footer}>
         <ScrollView>
-          <Text style={styles.text_footer}>Username</Text>
+          <Text style={styles.text_footer}>Email</Text>
           <View style={styles.action}>
             <FontAwesome name="user-o" color="#05375a" size={20} />
             <TextInput
-              placeholder="Your Username"
+              placeholder="Your Email"
               style={styles.textInput}
               autoCapitalize="none"
               onChangeText={(val) => textInputChange(val)}

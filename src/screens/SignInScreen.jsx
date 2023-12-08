@@ -28,7 +28,7 @@ import { loginAction } from "../redux/actions/authAction";
 
 const SignInScreen = ({ navigation }) => {
   const [data, setData] = React.useState({
-    username: "bqminh30@gmail.com",
+    email: "bqminh30@gmail.com",
     password: "123123",
     check_textInputChange: false,
     secureTextEntry: true,
@@ -43,17 +43,19 @@ const SignInScreen = ({ navigation }) => {
   // const { signIn } = React.useContext(AuthContext);
 
   const textInputChange = (val) => {
-    if (val.trim().length >= 4) {
+    const emailPattern = /\S+@\S+\.\S+/; // Pattern đơn giản cho địa chỉ email
+
+    if (emailPattern.test(val)) {
       setData({
         ...data,
-        username: val,
+        email: val,
         check_textInputChange: true,
         isValidUser: true,
       });
     } else {
       setData({
         ...data,
-        username: val,
+        email: val,
         check_textInputChange: false,
         isValidUser: false,
       });
@@ -84,7 +86,9 @@ const SignInScreen = ({ navigation }) => {
   };
 
   const handleValidUser = (val) => {
-    if (val.trim().length >= 4) {
+    const emailPattern = /\S+@\S+\.\S+/; // Pattern đơn giản cho địa chỉ email
+
+    if (emailPattern.test(val)) {
       setData({
         ...data,
         isValidUser: true,
@@ -97,16 +101,16 @@ const SignInScreen = ({ navigation }) => {
     }
   };
 
-  const loginHandle = async (userName, password) => {
-    if (data.username.length == 0 || data.password.length == 0) {
+  const loginHandle = async (email, password) => {
+    if (data.email.length == 0 || data.password.length == 0) {
       Alert.alert(
         "Wrong Input!",
-        "Username or password field cannot be empty.",
+        "Email or Password field cannot be empty.",
         [{ text: "Okay" }]
       );
       return;
     }
-    dispatch(loginAction(userName, password));
+    dispatch(loginAction(email, password));
   };
 
   return (
@@ -133,12 +137,12 @@ const SignInScreen = ({ navigation }) => {
             },
           ]}
         >
-          Username
+          Email
         </Text>
         <View style={styles.action}>
           <FontAwesome name="user-o" color={colors.text} size={20} />
           <TextInput
-            placeholder="Your Username"
+            placeholder="Your Email"
             placeholderTextColor="#666666"
             style={[
               styles.textInput,
@@ -159,7 +163,7 @@ const SignInScreen = ({ navigation }) => {
         {data.isValidUser ? null : (
           <Animatable.View animation="fadeInLeft" duration={500}>
             <Text style={styles.errorMsg}>
-              Username must be 4 characters long.
+            Email is not in correct format
             </Text>
           </Animatable.View>
         )}
@@ -201,21 +205,21 @@ const SignInScreen = ({ navigation }) => {
         {data.isValidPassword ? null : (
           <Animatable.View animation="fadeInLeft" duration={500}>
             <Text style={styles.errorMsg}>
-              Password must be 8 characters long.
+              Password must be 3 characters long.
             </Text>
           </Animatable.View>
         )}
 
-        <TouchableOpacity>
+        {/* <TouchableOpacity>
           <Text style={{ color: 'grey', fontWeight: 700, marginTop: 15 }}>
             Forgot password?
           </Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
         <View style={styles.button}>
           <TouchableOpacity
             style={styles.signIn}
             onPress={() => {
-              loginHandle(data.username, data.password);
+              loginHandle(data.email, data.password);
             }}
           >
             <LinearGradient

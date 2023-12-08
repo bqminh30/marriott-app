@@ -55,9 +55,9 @@ const OnboardingScreen = () => {
               style={{width: 180, height: 180, objectFit: 'contain'}}
             />
           ),
-          title: "Tất cả những gì bạn cần ở một nơi",
+          title: "Everything you need in one place",
           subtitle:
-            "Khách sạn ở vị trí đắc địa, ở gần trung tâm thương mại, khu vui chơi giải trí",
+            "The hotel is in a prime location, near shopping centers and entertainment areas",
         },
         {
           backgroundColor: "#fff",
@@ -67,9 +67,9 @@ const OnboardingScreen = () => {
               style={{width: 200, height: 200, objectFit: 'contain'}}
             />
           ),
-          title: "Dịch vụ đặc biệt",
+          title: "Special service",
           subtitle:
-            "Bạn sẽ được trải nghiệm những dịch vụ tốt nhất của khách sạn",
+            "You will experience the best services of the hotel",
         },
         {
           backgroundColor: "#fff",
@@ -79,9 +79,9 @@ const OnboardingScreen = () => {
               style={{width: 200, height: 200, objectFit: 'contain'}}
             />
           ),
-          title: "Đặt phòng mọi lúc mọi nơi",
+          title: "Book a room anytime, anywhere",
           subtitle:
-            "Dịch vụ đặt phòng trực tuyến 24/7",
+            "24/7 online booking service",
         },
       ]}
     />

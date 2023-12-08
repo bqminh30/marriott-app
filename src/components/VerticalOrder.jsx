@@ -8,17 +8,17 @@ import { Entypo } from "@expo/vector-icons";
 const stars = 5;
 const VerticalOrder = ({ item }) => {
   var starPush = [];
-  for (var i = 1; i <= stars; i++) {
-    starPush.push(
-      <FontAwesome
-        key={i}
-        name={i <= item.room.rating ? "star" : "star-o"}
-        size={10}
-        color={i <= item.room.rating ? "orange" : "black"}
-        style={{ paddingRight: 4 }}
-      />
-    );
-  }
+  // for (var i = 1; i <= stars; i++) {
+  //   starPush.push(
+  //     <FontAwesome
+  //       key={i}
+  //       name={i <= item.room.rating ? "star" : "star-o"}
+  //       size={10}
+  //       color={i <= item.room.rating ? "orange" : "black"}
+  //       style={{ paddingRight: 4 }}
+  //     />
+  //   );
+  // }
   // console.log('item',item.room)
   return (
     <>
@@ -26,12 +26,12 @@ const VerticalOrder = ({ item }) => {
       <View style={styles.component}>
         <View style={styles.left}>
           <Image source={{ uri: item.room?.image }} style={styles.imageMain} />
-          <View>
+          <View style={{marginLeft: 4}}>
             <Text style={styles.name} numberOfLines={2} ellipsizeMode="tail">
               {item?.room.name}
             </Text>
             <View style={styles.rating}>
-              <View style={styles.rate}>{starPush}</View>
+              {/* <View style={styles.rate}>{starPush}</View> */}
               <Text style={styles.title}>{item?.room.rating} stars</Text>
             </View>
             <Text style={styles.title}>{item.room.totalReview} reviews</Text>
@@ -46,7 +46,7 @@ const VerticalOrder = ({ item }) => {
         <Text style={{color: COLORS.gray_main}}>
           {item.checkinDate} - {item.checkoutDate} ({item.dateCount})days
         </Text>
-        <View style={[styles.flex, { flexDirection: "row-reverse" }]}>
+        <View style={[styles.flex, { flexDirection: "row-reverse" , marginBottom:6}]}>
           <Text style={{ fontSize: 14 }}>$</Text>
           <Text style={{ fontSize: 18, fontWeight: 600 }}>{item.total}</Text>
         </View>
@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 2,
-    marginHorizontal: SIZES.margin
+    marginHorizontal: 12
   },
   component: {
     // borderRadius: SIZES.radius,
@@ -103,8 +103,8 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   imageMain: {
-    height: 60,
-    width: 60,
+    height: 70,
+    width: 70,
     borderRadius: 8,
   },
   name: {

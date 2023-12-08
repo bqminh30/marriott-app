@@ -3,20 +3,22 @@ import { Text, View, Image, TouchableOpacity, StyleSheet } from "react-native";
 import { COLORS, SIZES } from "../config/theme";
 
 import { FontAwesome } from "@expo/vector-icons";
+
+import { useNavigation } from '@react-navigation/native';
 //Redux
 import { useBooking } from "../redux/context/BookingContext"; //
 const Cart = () => {
+  const navigation = useNavigation()
   const { booking } = useBooking();
-  console.log('booking?.bookings?.length', booking?.bookings?.length)
   return (
-    <View style={styles.cart}>
+    <TouchableOpacity onPress={()=> navigation.navigate('Order')} style={styles.cart}>
       <FontAwesome name="shopping-cart" size={24} color="black" />
       <View style={styles.card}>
       <Text style={styles.text}>{booking?.bookings?.length
             ? booking?.bookings?.length
             : 0}</Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 

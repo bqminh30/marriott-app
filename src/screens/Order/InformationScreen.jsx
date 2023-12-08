@@ -133,18 +133,6 @@ const InformationScreen = ({ navigation }) => {
     []
   );
 
-  // if (booking == null) {
-  //   return (
-  //     <>
-  //       <StatusBar barStyle="dark-content" />
-  //       <SafeAreaView
-  //         style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-  //       >
-  //         <Text>Not order booking</Text>
-  //       </SafeAreaView>
-  //     </>
-  //   );
-  // }
 
   return (
     <>

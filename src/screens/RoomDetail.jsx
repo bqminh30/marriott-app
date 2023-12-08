@@ -76,6 +76,7 @@ const RoomDetail = ({ route, navigation }) => {
   const bottomSheetModalRef = useRef(null);
   const [isModal, setIsModal] = useState(true);
   const snapPoints = useMemo(() => [1, "25%", "40%", "85%"], []);
+  const [isLoadingCheck, setIsLoadingCheck] = useState(false);
 
   const { booking, saveBooking } = useBooking();
 
@@ -201,6 +202,11 @@ const RoomDetail = ({ route, navigation }) => {
     setIsModal(false);
   };
 
+  const handleClose = () => {
+    bottomSheetModalRef.current?.close(); // Đóng bottom sheet khi cần thiết
+    setIsModal(true); // Set lại trạng thái modal (nếu cần)
+  };
+
   const handleSaveBooking = async () => {
     if (selectedDates.length <= 0) {
       Alert.alert("Marriott", "Select dates.", [
@@ -211,7 +217,10 @@ const RoomDetail = ({ route, navigation }) => {
         },
         { text: "OK", onPress: () => console.log("OK Pressed") },
       ]);
+      // handleClose()
+      setIsModal(true)
     } else {
+      
       const startDate = moment(selectedDates[0]);
       const endDate = moment(selectedDates[1]);
 
@@ -220,55 +229,96 @@ const RoomDetail = ({ route, navigation }) => {
 
         const _startDate = startDate.format("DD/MM/YYYY 15:00");
         const _endDate = endDate.format("DD/MM/YYYY 12:00");
+        setIsLoadingCheck(true)
+        const res = await axios.post(
+          "https://be-nodejs-project.vercel.app/api/orders/check-room-availiable",
+          {
+            startDate: _startDate,
+            endDate: _endDate,
+            roomId: room_id,
+          }
+        );
+        console.log('res',res.status)
+        if (res.status === 200) {
+          setIsLoadingCheck(false)
+          const newBookingItem = {
+            checkinDate: _startDate,
+            checkoutDate: _endDate,
+            room: room,
+            room_id: room_id,
+            price: room?.priceSale ? room?.priceSale : room?.price,
+            total: room?.priceSale
+              ? room?.priceSale * dateCount
+              : room?.price * dateCount,
+            memberCount: memberCount,
+            childrenCount: childrenCount,
+            dateCount: dateCount,
+          };
 
-        const res = await axios.post('https://fb5f-118-71-135-222.ngrok-free.app/api/orders/check-room-availiable',
-        {
-          startDate: _startDate,
-          endDate: _endDate,
-          roomId: room_id
-        })
+          // Check if there's an existing booking with the same room_id
+          if (booking && Array.isArray(booking.bookings)) {
+            const existingBooking = booking.bookings.find(
+              (bookingItem) => bookingItem.room_id === room_id
+            );
+            // navigation.navigate("Information Detail");
+            if (existingBooking) {
+              // Handle scenario where booking for this room already exists
+              Alert.alert(
+                "Marriott",
+                "A booking for this room already exists.",
+                [
+                  {
+                    text: "Cancel",
+                    onPress: () => console.log("Cancel Pressed"),
+                    style: "cancel",
+                  },
+                  { text: "OK", onPress: () => console.log("OK Pressed") },
+                ]
+              );
+              setIsLoadingCheck(false)
+            } else {
+              // If no existing booking for this room, add the new booking
+              const updatedBookings = [...booking.bookings, newBookingItem];
+              saveBooking({ ...booking, bookings: updatedBookings });
+              handleClose()
+              setIsLoadingCheck(false)
+            }
+          } else {
+            // If there's no existing booking, create a new booking object with an array containing the new booking
+            saveBooking({ bookings: [newBookingItem] });
+            handleClose()
+            setIsLoadingCheck(false)
+            Alert.alert(
+              "Marriott",
+              "A booking for this room success.",
+              [
+                {
+                  text: "Cancel",
+                  onPress: () => console.log("Cancel Pressed"),
+                  style: "cancel",
+                },
+                { text: "OK", onPress: () => console.log("OK Pressed") },
+              ]
+            );
 
-        console.log('data', res.data,_startDate, _endDate);
+          }
+        }else {
+          setIsLoadingCheck(false)
+          Alert.alert(
+            "Marriott",
+            "The room is already booked for this period.",
+            [
+              {
+                text: "Cancel",
+                onPress: () => console.log("Cancel Pressed"),
+                style: "cancel",
+              },
+              { text: "OK", onPress: () => console.log("OK Pressed") },
+            ]
+          );
 
-        // const newBookingItem = {
-        //   checkinDate: _startDate,
-        //   checkoutDate: _endDate,
-        //   room: room,
-        //   room_id: room_id,
-        //   price: room?.priceSale ? room?.priceSale : room?.price,
-        //   total: room?.priceSale
-        //     ? room?.priceSale * dateCount
-        //     : room?.price * dateCount,
-        //   memberCount: memberCount,
-        //   childrenCount: childrenCount,
-        //   dateCount: dateCount,
-        // };
-
-        // // Check if there's an existing booking with the same room_id
-        // if (booking && Array.isArray(booking.bookings)) {
-        //   const existingBooking = booking.bookings.find(
-        //     (bookingItem) => bookingItem.room_id === room_id
-        //   );
-        //   navigation.navigate("Information Detail");
-        //   if (existingBooking) {
-        //     // Handle scenario where booking for this room already exists
-        //     Alert.alert("Marriott", "A booking for this room already exists.", [
-        //       {
-        //         text: "Cancel",
-        //         onPress: () => console.log("Cancel Pressed"),
-        //         style: "cancel",
-        //       },
-        //       { text: "OK", onPress: () => console.log("OK Pressed") },
-        //     ]);
-        //   } else {
-        //     // If no existing booking for this room, add the new booking
-        //     const updatedBookings = [...booking.bookings, newBookingItem];
-        //     saveBooking({ ...booking, bookings: updatedBookings });
-        //   }
-        // } else {
-        //   // If there's no existing booking, create a new booking object with an array containing the new booking
-        //   saveBooking({ bookings: [newBookingItem] });
-        // }
+        }
+        
       } else {
         console.log("Invalid dates");
       }
@@ -439,7 +489,7 @@ const RoomDetail = ({ route, navigation }) => {
                         data={services}
                         horizontal={true}
                         keyExtractor={(item, index) => index.toString()}
-                        style={{paddingLeft: 8}}
+                        style={{ paddingLeft: 8 }}
                         removeClippedSubviews={true}
                         initialNumToRender={10}
                         renderItem={({ item, index }) => (
@@ -656,9 +706,9 @@ const RoomDetail = ({ route, navigation }) => {
             </Text>
           </Text>
           {isModal ? (
-            <ButtonBook title={"Booking Now"} onPress={() => handleSaveBooking()} />
+            <ButtonBook title={"Booking Now"} onPress={() => handlePress()} />
           ) : (
-            <ButtonBook title={"Check"} onPress={() => handleSaveBooking()} />
+            <ButtonBook title={"Check"} isLoading={isLoadingCheck} onPress={() => handleSaveBooking()} />
           )}
         </View>
       </View>
