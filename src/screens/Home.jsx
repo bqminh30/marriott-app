@@ -127,7 +127,7 @@ const Home = () => {
     setDisplayedRooms(updatedRoomData);
   }, [favoriteRooms]);
 
-  console.log("rooms", displayedRooms?.length);
+  // console.log("rooms", displayedRooms?.length);
 
   return (
     <>
@@ -149,7 +149,7 @@ const Home = () => {
                 </View>
                 <Spacer height={20} />
                 <View style={styles.content}>
-                  <Text style={styles.name}>Hello, {user.fullname}</Text>
+                  <Text style={styles.name}>Hello, {user?.fullname}</Text>
                   <Text style={styles.title}>Best Hotel to Stay In</Text>
                 </View>
                 <Spacer height={10} />
@@ -213,7 +213,7 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 16,
-    color: COLORS.gray,
+    // color: COLORS.gray,
     fontWeight: 400,
   },
   title: {

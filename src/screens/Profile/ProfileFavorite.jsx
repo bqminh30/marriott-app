@@ -41,22 +41,39 @@ const ProfileFavorite = () => {
         style={styles.container}
       >
         <StatusBar backgroundColor="#009387" barStyle="dark-content" />
-        <SafeAreaView style={{marginBottom:20}}>
+        <SafeAreaView style={{ marginBottom: 20 }}>
           <View style={styles.header}>
             <Back />
             <View></View>
           </View>
-          <Spacer height={10}/>
-          <FlatList
-            data={favoriteRooms}
-            scrollEventThrottle={10}
-            keyExtractor={({ item, index }) => `${index}`}
-            renderItem={({ item, index }) => (
-              <VerticalSearch item={item} key={item.id} />
-            )}
-            style={{ marginBottom: 24, marginLeft: 24 }}
-          />
-          <Spacer height={20}/>
+          <Spacer height={10} />
+          {favoriteRooms.length > 0 ? (
+            <FlatList
+              data={favoriteRooms}
+              scrollEventThrottle={10}
+              keyExtractor={({ item, index }) => `${index}`}
+              renderItem={({ item, index }) => (
+                <VerticalSearch item={item} key={item.id} />
+              )}
+              style={{ marginBottom: 24, marginLeft: 24 }}
+            />
+          ) : (
+            <>
+              <View
+                style={{
+                  height: SIZES.height * 0.9,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Text style={{ fontWeight: 500, fontSize: 20 }}>
+                  Not Favorite List Room
+                </Text>
+              </View>
+            </>
+          )}
+
+          <Spacer height={20} />
         </SafeAreaView>
       </KeyboardAvoidingView>
     </GestureHandlerRootView>

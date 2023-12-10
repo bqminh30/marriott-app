@@ -7,27 +7,86 @@ import {
   StyleProp,
   StyleSheet,
   StatusBar,
-  Image,
-  TouchableOpacity,
   KeyboardAvoidingView,
   Keyboard,
   TouchableWithoutFeedback,
   ScrollView,
+  Alert,
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-
-import RadioGroup from "react-native-radio-buttons-group";
-import PhoneInput from "react-native-international-phone-number";
-import moment from "moment";
-import DateTimePickerModal from "react-native-modal-datetime-picker";
-
-import { MaterialIcons } from "@expo/vector-icons";
+import { Provider, useDispatch, useSelector } from "react-redux";
+import axios from "axios";
 import { COLORS, SIZES } from "../../config/theme";
 
 import Spacer from "../../components/Spacer";
 import Back from "../../components/Back";
+import Button from "../../components/Button";
 
 const ProfileChange = () => {
+  const { user,authToken } = useSelector((state) => state.authReducer);
+
+  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState({
+    cur_pass: "",
+    new_pass1: "",
+    new_pass2: "",
+  });
+
+  const handleChange = (name, value) => {
+    setData({
+      ...data,
+      [name]: value,
+    });
+  };
+
+  const submitPost = async () => {
+    if (data.new_pass1 === data.new_pass2) {
+      try {
+        setLoading(true);
+        await axios
+          .post(
+            `https://be-nodejs-project.vercel.app/api/customer/change-password`,
+            {
+              currentPassword: data.cur_pass,
+              newPassword: data.new_pass1
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${authToken}`, // Gửi token trong header
+                'Content-Type': 'application/json', // Có thể cần thiết tùy vào yêu cầu của API
+              },
+            }
+          )
+          .then((response) => {
+            Alert.alert("Marriott", "Change Password Success", [
+              {
+                text: "Done",
+                style: "cancel",
+              },
+            ]);
+            setLoading(false);
+          })
+          .catch((err) => {
+            Alert.alert("Marriott", "Change Password Error", [
+              {
+                text: "Cancel",
+                style: "cancel",
+              },
+            ]);
+            setLoading(false);
+          });
+      } catch (err) {
+        console.log("err", err);
+      }
+    } else {
+      Alert.alert("Marriott", "Password Not Match", [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+      ]);
+    }
+  };
 
   return (
     <>
@@ -52,6 +111,8 @@ const ProfileChange = () => {
                       <TextInput
                         placeholderTextColor={COLORS.gray_main}
                         placeholder="Current Password"
+                        secureTextEntry={true}
+                        onChangeText={(text) => handleChange("cur_pass", text)}
                         style={styles.textInput}
                       />
                     </View>
@@ -60,14 +121,10 @@ const ProfileChange = () => {
                     <View style={styles.inputContainer}>
                       <TextInput
                         placeholderTextColor={COLORS.gray_main}
-                        autoComplete="email"
-                        placeholder="Email Address"
+                        placeholder="New Password"
                         style={styles.textInput}
-                      />
-                      <MaterialIcons
-                        name="email"
-                        size={20}
-                        color={COLORS.gray_main}
+                        secureTextEntry={true}
+                        onChangeText={(text) => handleChange("new_pass1", text)}
                       />
                     </View>
                     <Spacer height={15} />
@@ -75,19 +132,13 @@ const ProfileChange = () => {
                     <View style={styles.inputContainer}>
                       <TextInput
                         placeholderTextColor={COLORS.gray_main}
-                        autoComplete="email"
-                        placeholder="Email Address"
+                        placeholder="Enter New Password"
                         style={styles.textInput}
-                      />
-                      <MaterialIcons
-                        name="email"
-                        size={20}
-                        color={COLORS.gray_main}
+                        secureTextEntry={true}
+                        onChangeText={(text) => handleChange("new_pass2", text)}
                       />
                     </View>
                     <Spacer height={15} />
-
-                    
                   </View>
                 </View>
               </ScrollView>
@@ -95,6 +146,26 @@ const ProfileChange = () => {
           </GestureHandlerRootView>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
+      <View style={styles.bottom}>
+        <View
+          style={[
+            styles.flex,
+            {
+              marginHorizontal: SIZES.margin,
+              justifyContent: "space-between",
+              marginBottom: 30,
+            },
+          ]}
+        >
+          <Button
+            label="Submit"
+            onPress={submitPost}
+            color={COLORS.white}
+            background={COLORS.black}
+            loading={false}
+          />
+        </View>
+      </View>
     </>
   );
 };
@@ -123,5 +194,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
   },
-  textInput: { color: "black", fontSize: 16 },
+  textInput: { color: "black", fontSize: 16, width:200 },
+  bottom: {
+    position: "absolute",
+    bottom: 0,
+    height: 100,
+    width: "100%",
+    backgroundColor: COLORS.white,
+  },
 });

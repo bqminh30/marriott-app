@@ -54,24 +54,27 @@ const radioButtons = [
 
 
 const ProfileChange = () => {
+  
   const { user } = useSelector((state) => state.authReducer);
   const dispath = useDispatch();
   
-  const [value, setValue] = useState({
-    fullname:  user?.fullname,
-    email: user?.email,
-    gender: user?.gender,
-    phonenumber: user?.phonenumber,
-    address: user?.address,
-    birthday: user?.birthday,
-    code: user?.code
-  })
 
   const [loading, setLoading] = useState(false)
   const [selectedId, setSelectedId] = useState(user?.gender);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [showImages, setImages] = React.useState(false);
   const [image, setImage] = useState(user?.avatar);
+  const [data, setData] = useState()
+
+  const [value, setValue] = useState({
+    fullname:  data?.fullname,
+    email: data?.email,
+    gender: data?.gender,
+    phonenumber: data?.phonenumber,
+    address: data?.address,
+    birthday: data?.birthday,
+    code: data?.code
+  })
 
   const showDatePicker = () => {
     setDatePickerVisibility(true);
@@ -109,6 +112,33 @@ const ProfileChange = () => {
     });
   };
 
+  const handleCallBooking = async () => {
+    const response = await axios.get(
+      `https://be-nodejs-project.vercel.app/api/customer/${user.id}`
+    );
+    if (response.status === 200) {
+      console.log('res', response.data[0])
+      setValue(
+        {
+          fullname:  response?.data[0].fullname,
+          email: response?.data[0].email,
+          gender: response?.data[0].gender,
+          phonenumber: response?.data[0].phonenumber,
+          address: response?.data[0].address,
+          birthday: response?.data[0].birthday,
+          code: response?.data[0].code
+        }
+      )
+      setSelectedId(response?.data[0].gender)
+      setData(response.data[0]);
+    } else {
+    }
+  };
+
+  useEffect(() => {
+    handleCallBooking();
+  }, []);
+
   const submitPost = async () => {
       try{
         let formData = new FormData();
@@ -124,7 +154,7 @@ const ProfileChange = () => {
               Math.floor(Math.random() * Math.floor(999999999)) + '.jpg',
             type: image?.type || 'image/jpeg',
           });
-        formData.append('avatar', file);
+        formData.append('avatar', file ? '':'');
         formData.append('fullname', value?.fullname);
         formData.append('phonenumber', value?.phonenumber);
         formData.append('address', value?.address);
@@ -184,11 +214,12 @@ const ProfileChange = () => {
                   <Back />
                   {/* <Avatar /> */}
                 </View>
+                <Spacer height={10}/>
                 {/* Your information details */}
-                <View style={{ margin: 20 }}>
+                <View style={{ marginHorizontal: 20 }}>
                   <Text style={styles.title}>Your Information Details</Text>
                   <View>
-                    <Spacer height={10} />
+                    {/* <Spacer height={10} />
                     <View
                       style={{
                         alignSelf: 'center',
@@ -249,8 +280,8 @@ const ProfileChange = () => {
                         )}
                       </TouchableOpacity>
                  
-                    </View>
-                    <Spacer height={30} />
+                    </View> */}
+                    <Spacer height={10} />
                     <View style={styles.inputContainer}>
                       <TextInput
                         placeholderTextColor={COLORS.gray_main}
@@ -412,7 +443,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginHorizontal: SIZES.padding,
+    marginHorizontal: 20,
   },
   title: {
     fontSize: 16,

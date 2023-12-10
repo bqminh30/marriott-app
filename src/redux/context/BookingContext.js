@@ -9,6 +9,8 @@ export const BookingProvider = ({ children }) => {
     setBooking(newBooking);
   };
 
+  console.log('saveBooking',booking)
+
   return (
     <BookingContext.Provider value={{ booking, saveBooking, step, setStep }}>
       {children}

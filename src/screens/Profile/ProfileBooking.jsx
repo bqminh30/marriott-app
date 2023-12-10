@@ -124,7 +124,11 @@ const ProfileBooking = ({ navigation }) => {
                   />
                 ) : (
                   <>
-                    <Text>Not booking</Text>
+                  <View style={{height: SIZES.height * 0.95, justifyContent:'center',
+                alignItems:'center'}}>
+                  <Text style={{fontWeight:500, fontSize: 20}}>There are no reservations yet</Text>
+                  </View>
+                   
                   </>
                 )}
               </>

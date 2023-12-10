@@ -28,6 +28,7 @@ const styles = StyleSheet.create({
     type : {
         paddingHorizontal: 20,
         paddingVertical: 4,
+        // paddingBottom:2,
         fontSize: 14,
         fontFamily: 'Poppins-Medium',
         fontWeight: 600,

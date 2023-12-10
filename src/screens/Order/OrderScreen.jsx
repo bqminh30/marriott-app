@@ -51,7 +51,6 @@ const calculateTotalSum = (bookings) => {
 const OrderScreen = () => {
   const { booking, setStep, step, saveBooking } = useBooking();
   const { user } = useSelector((state) => state.authReducer);
-  
 
   const [value, setValue] = useState({
     fullname: user?.fullname,
@@ -62,14 +61,24 @@ const OrderScreen = () => {
     gender: "1",
   });
 
+  console.log("user?.code", user?.code);
+
   const sumTotal = calculateTotalSum(booking?.bookings);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [showGateway, setShowGateway] = useState(false);
   const [showTitle, setShowTitle] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [showModal2, setShowModal2] = useState(false);
   const [urlPaypal, setUrlPaypal] = useState("");
+  const [idRoom, setIdRoom] = useState()
 
-  const formateDate = moment(value.birthday).format("DD-MM-yyyy")
+  const formateDate = moment(value.birthday).format("DD-MM-yyyy");
+
+  const activeButton = (data) => {
+    setIdRoom(data.room_id)
+    console.log(data.room_id);
+    setShowModal2(true);
+  };
 
   const showDatePicker = () => {
     setDatePickerVisibility(true);
@@ -101,12 +110,13 @@ const OrderScreen = () => {
       setShowTitle(title);
     }
   };
-  
+
   const handlePayment = async () => {
     try {
       const response = await axios.get(
-        "https://be-nodejs-project.vercel.app/create", {
-          data: sumTotal
+        "https://be-nodejs-project.vercel.app/create",
+        {
+          data: sumTotal,
         }
       );
       const paymentLinks = response.data;
@@ -165,7 +175,20 @@ const OrderScreen = () => {
     }
   };
 
-  
+  const handleRemoveRoom = (idRoom) => {
+    const updatedBookings = booking.bookings.filter((booking) => booking.room_id !== idRoom);
+    const updatedOrder = { ...booking.order, /* Update order here based on the room_id */ };
+    const updatedMethod = { ...booking.method, /* Update method here based on the room_id */ };
+    
+    saveBooking({
+      ...booking,
+      bookings: updatedBookings,
+      order: updatedOrder,
+      method: updatedMethod,
+    });
+    // console.log('update', updatedBookings);
+    setShowModal2(false)
+  };
 
   if (booking == null || Object.keys(booking).length === 0) {
     return (
@@ -221,7 +244,7 @@ const OrderScreen = () => {
                   <View>
                     <View style={styles.header}>
                       <Back />
-                      <Text style={styles.title}>Đơn đặt phòng</Text>
+                      <Text style={styles.title}>Booking Form</Text>
                       <Avatar />
                     </View>
                     <Spacer height={10} />
@@ -231,7 +254,11 @@ const OrderScreen = () => {
                       horizontal={false}
                       keyExtractor={({ item, index }) => index}
                       renderItem={({ item, index }) => (
-                        <VerticalOrder item={item} key={item.id} />
+                        <VerticalOrder
+                          item={item}
+                          key={item.id}
+                          activeButton={activeButton}
+                        />
                       )}
                       style={{ marginBottom: 10 }}
                     />
@@ -301,19 +328,21 @@ const OrderScreen = () => {
                         <Spacer height={15} />
 
                         <View style={styles.inputContainer}>
-                      <TextInput
-                        placeholderTextColor={COLORS.gray_main}
-                        value={value?.phonenumber}
-                        onChangeText={(text) =>handleInputChange('phonenumber', text)}
-                        placeholder="Phone Number"
-                        style={styles.textInput}
-                      />
-                      <MaterialIcons
-                        name="phone"
-                        size={20}
-                        color={COLORS.gray_main}
-                      />
-                    </View>
+                          <TextInput
+                            placeholderTextColor={COLORS.gray_main}
+                            value={value?.phonenumber}
+                            onChangeText={(text) =>
+                              handleInputChange("phonenumber", text)
+                            }
+                            placeholder="Phone Number"
+                            style={styles.textInput}
+                          />
+                          <MaterialIcons
+                            name="phone"
+                            size={20}
+                            color={COLORS.gray_main}
+                          />
+                        </View>
 
                         {/* <Spacer height={15} />
                         <RadioGroup
@@ -366,28 +395,7 @@ const OrderScreen = () => {
                       </Text>
                       <View>
                         <Spacer height={10} />
-                        {/* <View style={styles.inputMethod}>
-                          <View
-                            style={{
-                              marginLeft: 20,
-                              flex: 1,
-                              flexDirection: "row",
-                              alignItems: "center",
-                            }}
-                          >
-                            <Image
-                              style={{ height: 30, width: 30 }}
-                              source={require("../../../assets/paypal.png")}
-                            />
-                            <Text style={{ fontWeight: 600, fontSize: 18 }}>
-                              PayPal
-                            </Text>
-                          </View>
-                          <CheckBox
-                          // title='Click Here'
-                          // checked={this.state.checked}
-                          />
-                        </View> */}
+                       
                         {/* <Spacer height={5}/> */}
                         <View style={styles.inputMethod}>
                           <TouchableOpacity
@@ -437,7 +445,7 @@ const OrderScreen = () => {
                                 color: "white",
                               }}
                             >
-                              CheckOut
+                              Checkout
                             </Text>
                           </TouchableOpacity>
                         </View>
@@ -466,6 +474,59 @@ const OrderScreen = () => {
             }
           }}
         />
+      </Modal>
+
+      <Modal visible={showModal2}>
+        <View
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        >
+          <View
+            style={{
+              backgroundColor: "white",
+              borderRadius: 10,
+              width: "90%",
+              borderRadius: SIZES.radius,
+              // padding: 35,
+              // alignItems: "center",
+              shadowColor: "#000",
+              shadowOffset: {
+                width: 0,
+                height: 1,
+              },
+              shadowOpacity: 0.25,
+              shadowRadius: 4,
+              elevation: 2,
+              marginHorizontal: 12,
+              // height: "50%",
+              // justifyContent: "center",
+            }}
+          >
+            <Text style={{padding:10, fontSize:18, fontWeight:500}}>Do you want to remove the room from your booking calendar?</Text>
+            <View
+              style={{
+                margin: 10,
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "flex-end",
+                gap: 10,
+                alignItems: "flex-end",
+              }}
+            >
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => handleRemoveRoom(idRoom)}
+              >
+                <Text style={{ color: "white", fontSize:16 }}>Yes</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => setShowModal2(false)}
+              >
+                <Text style={{ color: "white" , fontSize:16}}>{`No`}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
       </Modal>
     </>
   );
@@ -561,5 +622,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 1,
     color: COLORS.gray,
+  },
+  button: {
+    backgroundColor: COLORS.black,
+    padding: 12,
+    borderRadius: 12,
   },
 });

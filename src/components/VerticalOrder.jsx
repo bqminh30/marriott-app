@@ -6,20 +6,8 @@ import { FontAwesome } from "@expo/vector-icons";
 import { Entypo } from "@expo/vector-icons";
 
 const stars = 5;
-const VerticalOrder = ({ item }) => {
+const VerticalOrder = ({ item, activeButton }) => {
   var starPush = [];
-  // for (var i = 1; i <= stars; i++) {
-  //   starPush.push(
-  //     <FontAwesome
-  //       key={i}
-  //       name={i <= item.room.rating ? "star" : "star-o"}
-  //       size={10}
-  //       color={i <= item.room.rating ? "orange" : "black"}
-  //       style={{ paddingRight: 4 }}
-  //     />
-  //   );
-  // }
-  // console.log('item',item.room)
   return (
     <>
       <View style={styles.card}>
@@ -37,9 +25,9 @@ const VerticalOrder = ({ item }) => {
             <Text style={styles.title}>{item.room.totalReview} reviews</Text>
           </View>
         </View>
-        <View style={styles.right}>
+        <TouchableOpacity style={styles.right} onPress={()=> activeButton(item)}>
           <Entypo name="dots-three-vertical" size={20} color="black" />
-        </View>
+        </TouchableOpacity>
       </View>
 
       <View style={{width: '90%'}}>
