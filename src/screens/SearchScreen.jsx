@@ -79,7 +79,7 @@ const SearchScreen = () => {
     til: "",
   })
 
-  const [rangeValues, setRangeValues] = useState([0, 10000]);
+  const [rangeValues, setRangeValues] = useState([0, 1000]);
   
   const bottomSheetModalRef = useRef(null);
   const bottomSheetModalRef2 = useRef(null);
@@ -674,7 +674,7 @@ const SearchScreen = () => {
                 // style={{ width: "90%", height: 40, marginLeft: 20 }}
                 values={rangeValues}
                 min={0}
-                max={10000}
+                max={1000}
                 step={100}
                 sliderLength={360}
                 onValuesChange={onSliderValuesChange}

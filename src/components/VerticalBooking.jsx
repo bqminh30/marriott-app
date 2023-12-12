@@ -45,6 +45,8 @@ const getStatusColorAndText = (status) => {
 const VerticalBooking = ({ item, handleModalItem }) => {
   const { color, text, textCl } = getStatusColorAndText(item.status);
 
+  console.log('item', item)
+
   const formattedDate = moment(item.createdDate).format("HH:mm DD-MM-YYYY");
   return (
     <>
@@ -62,6 +64,7 @@ const VerticalBooking = ({ item, handleModalItem }) => {
               </Text>
               <Text style={styles.name}>Email: {item?.email}</Text>
               <Text style={styles.name}>Code: {item?.code}</Text>
+              
               <Text style={styles.name}>Phone: {item?.phone}</Text>
             </View>
           </View>
